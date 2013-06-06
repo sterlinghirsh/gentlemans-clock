@@ -1,0 +1,12 @@
+{
+   "name": "gameclock",
+   "description": "Multiplayer game clock",
+   "version": "0.0.1",
+   "private": true,
+   "dependencies": {
+      "express": "3.2.5",
+      "mysql": "2.0.0-alpha8",
+      "underscore": "*",
+      "mongoose": "*"
+   }
+}
