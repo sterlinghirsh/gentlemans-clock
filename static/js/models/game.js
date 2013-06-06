@@ -3,9 +3,6 @@ function($, _, Backbone) {
    return Backbone.Model.extend({
       urlRoot: '/api/games'
       , idAttribute: '_id'
-      , initialize: function() {
-         console.log("toot");
-      }
       , getActivePlayerKey: function() {
          var players = this.get('players');
          var activePlayerKey = null;

@@ -11,6 +11,7 @@ define(['jquery', 'underscore', 'backbone',
             var model = new Game(data);
             model.save(null, {success: function() {
                that.collection.add(model);
+               that.options.gameView.setModel(model);
             }});
          }
       }

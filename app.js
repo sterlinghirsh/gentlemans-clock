@@ -60,6 +60,9 @@ db.once('open', function callback() {
    app.put('/api/games/:id', function(req, res) {
       Game.findById(req.params.id, function (err, game) {
          var gameData = req.body;
+
+         gameData.current_turn = game.current_turn;
+
          gameData.players = _.map(gameData.players, function(player, playerKey) {
             var dbPlayer = game.players[playerKey];
             if (typeof dbPlayer == 'undefined') {
@@ -88,6 +91,9 @@ db.once('open', function callback() {
                }
 
                // Don't do this on pause.
+               if (playerKey === gameData.players.length - 1) {
+                  ++gameData.current_turn;
+               }
                player.turn_time_used = 0;
                player.date_turn_started = null;
             }

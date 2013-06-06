@@ -9,15 +9,17 @@ GameListView, NewGameView, GameView) {
          var gameList = new Games;
          gameList.fetch({
             success: function(collection, response, options) {
+               var sharedGameView = new GameView({ model: null });
                var myGameListView = new GameListView({
                   el: $('#gameList'),
                   collection: collection,
-                  gameView: new GameView({ model: null })
+                  gameView: sharedGameView
                });
                myGameListView.render();
                new NewGameView({
                   el: $('#newGame'),
-                  collection: collection
+                  collection: collection,
+                  gameView: sharedGameView
                });
             },
             error: function(collection, response, options) {

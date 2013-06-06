@@ -3,7 +3,6 @@ define(['jquery', 'underscore', 'backbone',
 , function($, _, Backbone, GameListItemView) {
    return Backbone.View.extend({
       initialize: function() {
-         console.log(this);
          this.collection.on('change add', this.render, this);
       }
       , tagName: "ul"
