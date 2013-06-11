@@ -8,7 +8,8 @@ define(['jquery', 'underscore', 'backbone',
          if (this.model !== null) {
             this.model.on('change', this.render, this);
             this.render();
-            this.model.fetch(); // re-get the model
+            this.model.startLongPolling();
+            //this.model.fetch(); // re-get the model
          }
          this.refreshInterval = window.setInterval(
           _.bind(this.render, this), 1000);
@@ -20,7 +21,7 @@ define(['jquery', 'underscore', 'backbone',
          this.model = model;
          this.model.on('change', this.render, this);
          this.render();
-         this.model.fetch();
+         this.model.startLongPolling();
       }
       , render: function() {
          if (this.model === null) {
@@ -34,7 +35,7 @@ define(['jquery', 'underscore', 'backbone',
             var gameTimeLeft  = game.time_per_game - player.game_time_used;
             var turnTimeLeft = game.time_per_turn - player.turn_time_used;
             if (player.date_turn_started !== null) {
-               var timeDiff = Math.floor((now - new Date(player.date_turn_started)) / 1000);
+               var timeDiff = Math.floor((now - serverToLocal(player.date_turn_started)) / 1000);
                turnTimeLeft -= timeDiff;
                if (turnTimeLeft < 0) {
                   gameTimeLeft += turnTimeLeft;

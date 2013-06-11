@@ -1,0 +1,29 @@
+<html>
+   <head>
+      <script type="text/javascript">
+         // Local time - server time.
+         Date.now||(Date.now=function(){return+new Date});
+         // 100 ms accounts for render time. I got this by running the code on
+         // my local machine.
+         window.serverTimeDiff = Date.now() - <%=Date.now()%> - 100;
+         function serverToLocal(date) {
+            return new Date(new Date(date).getTime() + window.serverTimeDiff);
+         }
+      </script>
+   <body>
+      <div id="gameList"></div>
+      <div id="gameDetail"></div>
+      <div id="newGame" style="border: 1px solid red">
+         <form id="newGameForm">
+            <h3>Create Game</h3>
+            <label>Name: <input type="text" name="name" value="Untitled"></label><br>
+            <label>Time per turn (seconds): <input type="number" value="5" name="time_per_turn"></label><br>
+            <label>Time per game (seconds): <input type="number" value="600" name="time_per_game"></label>
+            <input type="submit" value="Create game!">
+         </form>
+      </div>
+      <script type="text/javascript" data-main="/static/js/main.js" src="/static/js/lib/require.js"></script>
+      <div id="serverTime" style="display:none"><%=Date.now()%></div>
+   </body>
+</html>
+

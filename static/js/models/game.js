@@ -3,6 +3,7 @@ function($, _, Backbone) {
    return Backbone.Model.extend({
       urlRoot: '/api/games'
       , idAttribute: '_id'
+      , longPolling: false
       , getActivePlayerKey: function() {
          var players = this.get('players');
          var activePlayerKey = null;
@@ -50,7 +51,7 @@ function($, _, Backbone) {
                   // This should roughtly match code in
                   // the put handler server side.
                   var timeDiff = Math.floor((new Date() - 
-                   new Date(player.date_turn_started)) / 1000);
+                   serverToLocal(player.date_turn_started)) / 1000);
 
                   if (player.game_time_used === null) {
                      player.game_time_used = 0;
@@ -83,6 +84,25 @@ function($, _, Backbone) {
             key = (key + 1) % this.get('players').length;
          }
          return this.startClock(key);
+      }, startLongPolling: function() {
+         this.longPolling = true;
+         this.executeLongPolling();
+      }, executeLongPolling: function() {
+         if (this.longPolling) {
+            this.fetch({success: _.bind(this.onFetch, this)});
+         }
+      }, stopLongPolling: function() {
+         this.longPolling = false;
+      }, onFetch: function() {
+         this.executeLongPolling();
+      }, sync: function(method, model, options) {
+         options = options || {};
+         var url = this.url();
+         if (this.longPolling && method == 'read') {
+            url += "/long_polling/" + this.get('date_updated');
+            options.url = url;
+         }
+         return Backbone.sync(method, model, options);
       }
    });
 });

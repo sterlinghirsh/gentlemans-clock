@@ -1,16 +1,18 @@
 requirejs.config({
    "baseUrl": "static/js",
    "paths": {
-      "jquery": "lib/jquery-2.0.2.min",
+      "jquery": "lib/jquery-1.10.1.min",
       "jquery-serializeObject": "lib/jquery.serializeObject.min",
       "underscore": "lib/underscore",
       "underscore-string": "lib/underscore.string",
       "backbone": "lib/backbone",
-      "text": "lib/text"
+      "text": "lib/text",
+      "date-shim": "lib/date-shim",
+      "json3": "lib/json3"
    },
    "shim": {
       "backbone": {
-         deps: ['underscore', 'jquery'],
+         deps: ['underscore', 'jquery', 'json3'],
          exports: 'Backbone'
       },
       "underscore": {
@@ -29,7 +31,7 @@ requirejs.config({
    }
 });
 require(['underscore', 'underscore-string',
-'client', 'jquery-serializeObject'], function (_, _s, client) {
+'client', 'jquery-serializeObject', 'date-shim'], function (_, _s, client) {
    _.mixin(_.string.exports());
    client.initialize();
 });
