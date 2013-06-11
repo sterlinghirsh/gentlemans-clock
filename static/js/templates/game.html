@@ -1,28 +1,21 @@
-<div style="border: 1px solid black">
-   Name: <%-name%><br>
-   State: <%-_.capitalize(state)%><br>
-   Date created: <%-new Date(date_created).toLocaleString()%><br>
-   Time per turn: <%-turnTimeString%><br>
-   Time per player: <%-gameTimeString%><br>
-   Current turn: <%-current_turn%><br>
-   Players: <%-players.length%>
-   <ul class="players">
-      <% for (var i in players) { %>
-         <li>
-            <%-players[i].name%>
-            [<%-players[i].gameTimeString%><%
-            if (players[i].state == 'playing' && time_per_turn > 0) { %>
-               (+<%-players[i].turnTimeString%>)
-            <% } %>]
-            <%-players[i].state == 'playing' ? '*' : ''%>
-         </li>
-      <% } %>
-   </ul>
-   <button id="nextPlayerButton">Next Player</button>
-   <button id="startClockButton">Start Clock</button>
-   <form id="newPlayerForm">
-      <h3>Add Player</h3>
-      <label>Name <input type="text" name="name" value="Player <%-players.length + 1%>"></label>
-      <input type="submit" value="Add Player">
-   </form>
-</div>
+Name: <%-name%><br>
+State: <%-_.capitalize(state)%><br>
+Date created: <%-new Date(date_created).toLocaleString()%><br>
+Time per turn: <%-turnTimeString%><br>
+Time per player: <%-gameTimeString%><br>
+Current turn: <%-current_turn%><br>
+Players: <%-players.length%>
+<ul class="players">
+   <% for (var i in players) { %>
+      <li>
+         <%-players[i].name%>
+         [<%-players[i].gameTimeString%><%
+         if (players[i].state == 'playing' && time_per_turn > 0) {
+            %> + <%-players[i].turnTimeString%><% 
+         } %>]
+         <%-players[i].state == 'playing' ? '*' : ''%>
+      </li>
+   <% } %>
+</ul>
+<button id="nextPlayerButton">Next Player</button>
+<button id="startClockButton">Start Clock</button>

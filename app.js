@@ -3,7 +3,8 @@ var mongoose = require('mongoose');
 var _ = require('underscore');
 var cons = require('consolidate');
 
-mongoose.connect('mongodb://localhost/gameclock');
+var mongolaburi = process.env.MONGOLAB_URI || 'mongodb://localhost/gameclock';
+mongoose.connect(mongolaburi);
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 var app = express();
@@ -35,6 +36,7 @@ db.once('open', function callback() {
    app.use(express.compress());
    app.use(express.methodOverride());
    app.use(express.bodyParser());
+   app.use(express.logger());
 
    app.set('view engine', 'html');
    app.set('views', __dirname + '/views');
@@ -151,13 +153,11 @@ db.once('open', function callback() {
    // Periodically send updates to clients waiting for more than 15 sec.
    setInterval(function() {
       _.each(pendingResponses, function(responses, gameid) {
-         console.log("Checking " + gameid);
          if (responses.length > 0) {
             Game.findById(gameid, function(err, game) {
                if (err) throw err;
                responses.forEach(function(responseInfo, index) {
                   var timeDiff = Date.now() - responseInfo.date;
-                  console.log("Time Diff: " + timeDiff);
                   if (timeDiff >= 15000) {
                      responseInfo.res.json(game);
                      responses.splice(index, 1);
@@ -176,6 +176,7 @@ db.once('open', function callback() {
 
    app.use("/static", express.static(__dirname + "/static"));
 
-   app.listen(3000);
+   var port = process.env.PORT || 3000;
+   app.listen(port);
 });
 

@@ -1,9 +1,10 @@
 define(['jquery', 'underscore', 'backbone',
-'text!templates/game.html', 'custom']
-, function($, _, Backbone, _Game, Custom) {
+'text!templates/game.html', 'text!templates/new-player.html', 'custom']
+, function($, _, Backbone, _Game, _NewPlayer, Custom) {
    return Backbone.View.extend({
       el: $('#gameDetail')
       , template: _.template(_Game)
+      , lastNumPlayers: -1
       , initialize: function() {
          if (this.model !== null) {
             this.model.on('change', this.render, this);
@@ -17,9 +18,11 @@ define(['jquery', 'underscore', 'backbone',
       , setModel: function(model) {
          if (this.model !== null) {
             this.model.off('change');
+            this.model.stopLongPolling();
          }
          this.model = model;
          this.model.on('change', this.render, this);
+         this.lastNumPlayers = -1;
          this.render();
          this.model.startLongPolling();
       }
@@ -37,6 +40,7 @@ define(['jquery', 'underscore', 'backbone',
             if (player.date_turn_started !== null) {
                var timeDiff = Math.floor((now - serverToLocal(player.date_turn_started)) / 1000);
                turnTimeLeft -= timeDiff;
+               turnTimeLeft = _.min([game.time_per_turn, turnTimeLeft]);
                if (turnTimeLeft < 0) {
                   gameTimeLeft += turnTimeLeft;
                   turnTimeLeft = 0;
@@ -46,7 +50,15 @@ define(['jquery', 'underscore', 'backbone',
             player.turnTimeString = Custom.displayTime(turnTimeLeft);
             return player;
          });
-         this.$el.html(this.template(game));
+
+         var newNumPlayers = game.players.length;
+
+         this.$('#gameDisplay').html(this.template(game));
+
+         if (newNumPlayers != this.lastNumPlayers) {
+            this.lastNumPlayers = newNumPlayers;
+            this.$('#newPlayerForm').html(_.template(_NewPlayer)(game));
+         }
          this.delegateEvents();
          return this;
       }

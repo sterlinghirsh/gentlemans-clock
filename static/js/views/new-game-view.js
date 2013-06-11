@@ -1,5 +1,5 @@
 define(['jquery', 'underscore', 'backbone',
-'models/Game', 'collections/Games']
+'models/game', 'collections/games']
 , function($, _, Backbone, Game, Games) {
    return Backbone.View.extend({
       events: {
