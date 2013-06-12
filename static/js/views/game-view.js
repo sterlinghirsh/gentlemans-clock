@@ -19,10 +19,8 @@ _Game, _NewPlayer, _GameControls, Custom) {
             }
             //this.model.fetch(); // re-get the model
          }
-         /*
          this.refreshInterval = window.setInterval(
           _.bind(this.render, this), 1000);
-          */
       }
       , setModel: function(model) {
          if (this.model !== null) {
@@ -148,10 +146,8 @@ _Game, _NewPlayer, _GameControls, Custom) {
             ev.preventDefault();
 
             if (this.model.get('state') == 'paused') {
-               console.log('start');
                this.model.startClock();
             } else if (this.model.get('state') == 'active') {
-               console.log("pause");
                this.model.pauseClock();
             } else {
                this.model.resetClock();
@@ -171,9 +167,7 @@ _Game, _NewPlayer, _GameControls, Custom) {
             var playerid = li.data('playerid');
             var players = this.model.get('players');
             var player = null;
-            console.log(playerid);
             for (var i = 0; i < players.length; ++i) {
-               console.log(players[i]._id);
                if (players[i]._id == playerid) {
                   player = players[i];
                   break;
@@ -183,10 +177,11 @@ _Game, _NewPlayer, _GameControls, Custom) {
                console.error("Null player clicked.");
                return;
             }
-            this.editPlayerView = new EditPlayerView({
+            new EditPlayerView({
                el: $('#editPlayerFormHolder')
                , model: player
                , game: this.model
+               , gameView: this
             });
          }
       }

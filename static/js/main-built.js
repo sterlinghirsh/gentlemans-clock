@@ -1812,7 +1812,7 @@ define('text',['module'], function (module) {
     return text;
 });
 
-define('text!templates/edit-player.html',[],function () { return '<fieldset>\n   <legend>Edit Player (<%-name%>)</legend>\n   <div class="row-fluid">\n      <div class="span6">\n         <label for="playerName">Name</label>\n         <input type="text" value="<%-name%>" class="input-block-level" maxlength="16"\n          id="playerName" name="name">\n      </div>\n      <div class="span6">\n         <label for="playerColor">Color</label>\n         <select name="color" id="playerColor" class="input-block-level">\n            <% for (var i = 0; i < validColors.length; ++i) { %>\n            <option class="<%-validColors[i]%>" value="<%-validColors[i]%>"\n            <%= color == validColors[i] ? \'selected\' : \'\' %>>\n               <%-_.capitalize(validColors[i])%>\n            </option>\n            <% } %>\n         </select>\n      </div>\n   </div>\n   <div class="form-actions">\n      <a class="btn btn-danger" id="removePlayerButton">Remove Player</a>\n      <input type="submit" value="Update Player" class="btn btn-success">\n   </div>\n</fieldset>\n';});
+define('text!templates/edit-player.html',[],function () { return '<fieldset>\n   <legend>Edit Player (<%-name%>)</legend>\n   <div class="row-fluid">\n      <div class="span6">\n         <label for="playerName">Name</label>\n         <input type="text" value="<%-name%>" class="input-block-level" maxlength="16"\n          id="playerName" name="name">\n      </div>\n      <div class="span6">\n         <label for="playerColor">Color</label>\n         <select name="color" id="playerColor" class="input-block-level">\n            <% for (var i = 0; i < validColors.length; ++i) { %>\n            <option class="<%-validColors[i]%>" value="<%-validColors[i]%>"\n            <%= color == validColors[i] ? \'selected\' : \'\' %>>\n               <%-_.capitalize(validColors[i])%>\n            </option>\n            <% } %>\n         </select>\n      </div>\n   </div>\n   <div class="form-actions">\n      <a class="btn btn-danger btn-large pull-left" id="removePlayerButton"><i class="icon-trash"></i></a>\n      <input type="submit" value="Update Player" class="btn btn-success btn-large pull-right">\n   </div>\n</fieldset>\n';});
 
 define('views/edit-player-view',['jquery', 'underscore', 'backbone', 'bootbox',
 'text!templates/edit-player.html', 'bootstrap']
@@ -1820,9 +1820,13 @@ define('views/edit-player-view',['jquery', 'underscore', 'backbone', 'bootbox',
    return Backbone.View.extend({
       template: _.template(_EditPlayer)
       , initialize: function() {
+         var that = this;
          this.form = this.$('form');
          this.validColors = ['red', 'green', 'blue', 'black', 'white',
           'yellow', 'pink', 'tan', 'gray'];
+         this.$el.on('hidden', function() {
+            that.undelegateEvents();
+         });
          this.render();
       }
       , render: function() {
@@ -1830,12 +1834,16 @@ define('views/edit-player-view',['jquery', 'underscore', 'backbone', 'bootbox',
             validColors: this.validColors
          });
          this.form.html(this.template(this.model));
+         //this.options.gameView.undelegateEvents();
          this.$el.modal();
       }, events: {
          'click #removePlayerButton': function(ev) {
+            var that = this;
             ev.preventDefault();
+            this.undelegateEvents();
             bootbox.confirm("Are you sure you want to remove this player? You cannot undo this action.",
              _.bind(function(result) {
+               that.delegateEvents();
                if (!result)
                return;
                var players = this.options.game.get('players');
@@ -1866,12 +1874,13 @@ define('views/edit-player-view',['jquery', 'underscore', 'backbone', 'bootbox',
             var that = this;
 
             var players = this.options.game.get('players');
-            _.each(players, function(player) {
-               if (player._id == that.model._id) {
-                  player.name = data.name;
-                  player.color= data.color;
+            for (var i = 0; i < players.length; ++i) {
+               if (players[i]._id == that.model._id) {
+                  players[i].name = data.name;
+                  players[i].color= data.color;
+                  break;
                }
-            });
+            };
 
             this.options.game.set({players: players});
             if (this.options.game.get('public')) {
@@ -1938,10 +1947,8 @@ _Game, _NewPlayer, _GameControls, Custom) {
             }
             //this.model.fetch(); // re-get the model
          }
-         /*
          this.refreshInterval = window.setInterval(
           _.bind(this.render, this), 1000);
-          */
       }
       , setModel: function(model) {
          if (this.model !== null) {
@@ -2067,10 +2074,8 @@ _Game, _NewPlayer, _GameControls, Custom) {
             ev.preventDefault();
 
             if (this.model.get('state') == 'paused') {
-               console.log('start');
                this.model.startClock();
             } else if (this.model.get('state') == 'active') {
-               console.log("pause");
                this.model.pauseClock();
             } else {
                this.model.resetClock();
@@ -2090,9 +2095,7 @@ _Game, _NewPlayer, _GameControls, Custom) {
             var playerid = li.data('playerid');
             var players = this.model.get('players');
             var player = null;
-            console.log(playerid);
             for (var i = 0; i < players.length; ++i) {
-               console.log(players[i]._id);
                if (players[i]._id == playerid) {
                   player = players[i];
                   break;
@@ -2102,10 +2105,11 @@ _Game, _NewPlayer, _GameControls, Custom) {
                console.error("Null player clicked.");
                return;
             }
-            this.editPlayerView = new EditPlayerView({
+            new EditPlayerView({
                el: $('#editPlayerFormHolder')
                , model: player
                , game: this.model
+               , gameView: this
             });
          }
       }

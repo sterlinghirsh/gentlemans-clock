@@ -4,6 +4,9 @@
     A set of useful LESS mixins
     More info at: http://lesselements.com
   ---------------------------------------------------*/
+body {
+  background-color: #ddd;
+}
 #mainMenu .startGame {
   height: 60%;
   width: 100%;
@@ -43,7 +46,7 @@
   -moz-border-radius: 3px;
   border-radius: 3px;
   list-style-type: none;
-  margin-bottom: 2px;
+  margin-bottom: 5px;
   -webkit-transition: all 2s ease-out;
   -moz-transition: all 2s ease-out;
   -o-transition: all 2s ease-out;
@@ -51,7 +54,13 @@
   font-weight: bold;
 }
 .players li.playing {
-  border-width: 4px;
+  border-width: 6px;
+  font-size: 150%;
+  line-height: 150%;
+  -webkit-box-shadow: -2px 2px 2px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: -2px 2px 2px rgba(0, 0, 0, 0.5);
+  box-shadow: -2px 2px 2px rgba(0, 0, 0, 0.5);
+  margin-left: 1px;
 }
 .players .red {
   background-color: #cc3333;
@@ -71,6 +80,76 @@
   background-image: -ms-linear-gradient(left, #3333cc, #9999ee);
   background-image: -o-linear-gradient(left, #3333cc, #9999ee);
   border-color: #3333cc;
+  color: #ffffff;
+}
+.players .green {
+  background-color: #11aa11;
+  background-image: -webkit-gradient(linear, left top, right top, from(#11aa11), to(#66cc66));
+  background-image: -webkit-linear-gradient(left, #11aa11, #66cc66);
+  background-image: -moz-linear-gradient(left, #11aa11, #66cc66);
+  background-image: -ms-linear-gradient(left, #11aa11, #66cc66);
+  background-image: -o-linear-gradient(left, #11aa11, #66cc66);
+  border-color: #11aa11;
+  color: #ffffff;
+}
+.players .black {
+  background-color: #000000;
+  background-image: -webkit-gradient(linear, left top, right top, from(#000000), to(#666666));
+  background-image: -webkit-linear-gradient(left, #000000, #666666);
+  background-image: -moz-linear-gradient(left, #000000, #666666);
+  background-image: -ms-linear-gradient(left, #000000, #666666);
+  background-image: -o-linear-gradient(left, #000000, #666666);
+  border-color: #000000;
+  color: #ffffff;
+}
+.players .white {
+  background-color: #ffffff;
+  background-image: -webkit-gradient(linear, left top, right top, from(#ffffff), to(#cccccc));
+  background-image: -webkit-linear-gradient(left, #ffffff, #cccccc);
+  background-image: -moz-linear-gradient(left, #ffffff, #cccccc);
+  background-image: -ms-linear-gradient(left, #ffffff, #cccccc);
+  background-image: -o-linear-gradient(left, #ffffff, #cccccc);
+  border-color: #ffffff;
+  color: #000000;
+}
+.players .yellow {
+  background-color: #ffff11;
+  background-image: -webkit-gradient(linear, left top, right top, from(#ffff11), to(#eeee99));
+  background-image: -webkit-linear-gradient(left, #ffff11, #eeee99);
+  background-image: -moz-linear-gradient(left, #ffff11, #eeee99);
+  background-image: -ms-linear-gradient(left, #ffff11, #eeee99);
+  background-image: -o-linear-gradient(left, #ffff11, #eeee99);
+  border-color: #ffff11;
+  color: #000000;
+}
+.players .gray {
+  background-color: #999999;
+  background-image: -webkit-gradient(linear, left top, right top, from(#999999), to(#333333));
+  background-image: -webkit-linear-gradient(left, #999999, #333333);
+  background-image: -moz-linear-gradient(left, #999999, #333333);
+  background-image: -ms-linear-gradient(left, #999999, #333333);
+  background-image: -o-linear-gradient(left, #999999, #333333);
+  border-color: #999999;
+  color: #ffffff;
+}
+.players .tan {
+  background-color: #e9c2a6;
+  background-image: -webkit-gradient(linear, left top, right top, from(#e9c2a6), to(#fff5ee));
+  background-image: -webkit-linear-gradient(left, #e9c2a6, #fff5ee);
+  background-image: -moz-linear-gradient(left, #e9c2a6, #fff5ee);
+  background-image: -ms-linear-gradient(left, #e9c2a6, #fff5ee);
+  background-image: -o-linear-gradient(left, #e9c2a6, #fff5ee);
+  border-color: #e9c2a6;
+  color: #000000;
+}
+.players .pink {
+  background-color: #cc33cc;
+  background-image: -webkit-gradient(linear, left top, right top, from(#cc33cc), to(#ee99ee));
+  background-image: -webkit-linear-gradient(left, #cc33cc, #ee99ee);
+  background-image: -moz-linear-gradient(left, #cc33cc, #ee99ee);
+  background-image: -ms-linear-gradient(left, #cc33cc, #ee99ee);
+  background-image: -o-linear-gradient(left, #cc33cc, #ee99ee);
+  border-color: #cc33cc;
   color: #ffffff;
 }
 #editPlayerFormHolder {

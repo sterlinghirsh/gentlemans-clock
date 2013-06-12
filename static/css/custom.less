@@ -1,3 +1,7 @@
+body {
+   background-color: #ddd;
+}
+
 .horizontal-gradient (@startColor: #eee, @endColor: white) {
    background-color: @startColor;
    background-image: -webkit-gradient(linear, left top, right top, from(@startColor), to(@endColor));
@@ -54,13 +58,17 @@
       border-style: solid;
       .rounded(3px);
       list-style-type: none;
-      margin-bottom: 2px;
+      margin-bottom: 5px;
       .transition(2s, ease-out);
       font-weight: bold;
    }
 
    li.playing {
-      border-width: 4px;
+      border-width: 6px;
+      font-size: 150%;
+      line-height: 150%;
+      .drop-shadow(-2px, 2px, 2px, 0.5);
+      margin-left: 1px;
    }
 
    .player-colors (@c1, @c2, @ctext) {
@@ -75,6 +83,34 @@
 
    .blue {
       .player-colors(#33c, #99e, #fff);
+   }
+
+   .green {
+      .player-colors(#1a1, #6c6, #fff);
+   }
+
+   .black {
+      .player-colors(#000, #666, #fff);
+   }
+
+   .white {
+      .player-colors(#fff, #ccc, #000);
+   }
+
+   .yellow {
+      .player-colors(#ff1, #ee9, #000);
+   }
+
+   .gray {
+      .player-colors(#999, #333, #fff);
+   }
+
+   .tan {
+      .player-colors(#E9C2A6, #FFF5EE, #000);
+   }
+
+   .pink {
+      .player-colors(#c3c, #e9e, #fff);
    }
 }
 
