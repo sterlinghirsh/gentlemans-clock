@@ -31,6 +31,7 @@ _Game, _NewPlayer, _GameControls, Custom) {
          this.model.on('change', this.render, this);
          this.model.on('change:_id', function() {
             this.options.router.navigate('game/' + this.model.id);
+            this.model.startLongPolling();
          }, this);
          this.model.on('change:public', function() {
             if (this.model.get('public')) {
@@ -98,16 +99,7 @@ _Game, _NewPlayer, _GameControls, Custom) {
          }
          , 'click .addPlayerButton': function(ev) {
             ev.preventDefault();
-            var players = this.model.get('players');
-            var data = {
-               name: "Player " + (players.length + 1),
-               game_time_used: 0,
-               turn_time_used: 0,
-               state: 'waiting',
-               date_turn_started: null
-            };
-            players.push(data);
-            this.model.set('players', players);
+            this.model.addNewPlayer();
             if (this.model.get('public')) {
                this.model.save();
             } else {
@@ -160,7 +152,7 @@ _Game, _NewPlayer, _GameControls, Custom) {
             }
          }
          , 'click .makePublicButton': function(ev) {
-            this.model.set({'public': true}).save();
+            this.model.set({'public': true}, {silent: true}).save();
          }
          , 'click li': function(ev) {
             var li = $(ev.currentTarget);
@@ -168,7 +160,7 @@ _Game, _NewPlayer, _GameControls, Custom) {
             var players = this.model.get('players');
             var player = null;
             for (var i = 0; i < players.length; ++i) {
-               if (players[i]._id == playerid) {
+               if (players[i].guid == playerid) {
                   player = players[i];
                   break;
                }

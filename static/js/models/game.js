@@ -1,5 +1,5 @@
-define(['jquery', 'underscore', 'backbone'],
-function($, _, Backbone) {
+define(['jquery', 'underscore', 'backbone', 'custom'],
+function($, _, Backbone, Custom) {
    return Backbone.Model.extend({
       urlRoot: '/api/games'
       , idAttribute: '_id'
@@ -168,6 +168,23 @@ function($, _, Backbone) {
             options.url = url;
          }
          return Backbone.sync(method, model, options);
+      }, addNewPlayer: function() {
+         var players = this.get('players');
+         var usedColors = [];
+         for (i = 0; i < players.length; ++i) {
+            usedColors.push(players[i].color);
+         }
+         var data = {
+            name: "Player " + (players.length + 1),
+            game_time_used: 0,
+            turn_time_used: 0,
+            state: 'waiting',
+            color: Custom.getNextUnusedColor(usedColors),
+            guid: Custom.makeid(40),
+            date_turn_started: null
+         };
+         players.push(data);
+         this.set('players', players);
       }
    });
 });

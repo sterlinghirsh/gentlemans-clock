@@ -1223,8 +1223,55 @@ define("backbone", ["json","underscore","jquery"], (function (global) {
     };
 }(this)));
 
-define('models/game',['jquery', 'underscore', 'backbone'],
-function($, _, Backbone) {
+define('custom',['underscore'], function(_) {
+   return {
+      displayTime: function (timeInSeconds) {
+         timeInSeconds = _.max([0, timeInSeconds]);
+         var hours = Math.floor(timeInSeconds / 3600);
+         timeInSeconds -= hours * 3600;
+         var mins = Math.floor(timeInSeconds / 60);
+
+         if (mins < 10 && hours > 0) {
+            mins = "0" + mins;
+         }
+         var secs = Math.floor(timeInSeconds % 60);
+
+         if (secs < 10) {
+            secs = "0" + secs;
+         }
+
+         var timeString = mins + ":" + secs;
+
+         if (hours > 0) {
+            timeString = hours + ":" + player.gameTimeString;
+         }
+
+         return timeString;
+      }
+      , makeid: function(size) {
+         var text = "";
+         var possible = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+         for (var i=0; i < size; i++) {
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+         }
+
+         return text;
+      }
+      , validColors: ['red', 'green', 'blue', 'black', 'white',
+          'yellow', 'pink', 'tan', 'gray']
+      , getNextUnusedColor: function(usedColors) {
+         var unusedColors = _.difference(this.validColors, usedColors);
+         if (unusedColors.length == 0) {
+            return this.validColors[_.random(this.validColors.length - 1)];
+         } else {
+            return unusedColors[0];
+         }
+      }
+   }
+});
+
+define('models/game',['jquery', 'underscore', 'backbone', 'custom'],
+function($, _, Backbone, Custom) {
    return Backbone.Model.extend({
       urlRoot: '/api/games'
       , idAttribute: '_id'
@@ -1393,6 +1440,23 @@ function($, _, Backbone) {
             options.url = url;
          }
          return Backbone.sync(method, model, options);
+      }, addNewPlayer: function() {
+         var players = this.get('players');
+         var usedColors = [];
+         for (i = 0; i < players.length; ++i) {
+            usedColors.push(players[i].color);
+         }
+         var data = {
+            name: "Player " + (players.length + 1),
+            game_time_used: 0,
+            turn_time_used: 0,
+            state: 'waiting',
+            color: Custom.getNextUnusedColor(usedColors),
+            guid: Custom.makeid(40),
+            date_turn_started: null
+         };
+         players.push(data);
+         this.set('players', players);
       }
    });
 });
@@ -1815,15 +1879,15 @@ define('text',['module'], function (module) {
 define('text!templates/edit-player.html',[],function () { return '<fieldset>\n   <legend>Edit Player (<%-name%>)</legend>\n   <div class="row-fluid">\n      <div class="span6">\n         <label for="playerName">Name</label>\n         <input type="text" value="<%-name%>" class="input-block-level" maxlength="16"\n          id="playerName" name="name">\n      </div>\n      <div class="span6">\n         <label for="playerColor">Color</label>\n         <select name="color" id="playerColor" class="input-block-level">\n            <% for (var i = 0; i < validColors.length; ++i) { %>\n            <option class="<%-validColors[i]%>" value="<%-validColors[i]%>"\n            <%= color == validColors[i] ? \'selected\' : \'\' %>>\n               <%-_.capitalize(validColors[i])%>\n            </option>\n            <% } %>\n         </select>\n      </div>\n   </div>\n   <div class="form-actions">\n      <a class="btn btn-danger btn-large pull-left" id="removePlayerButton"><i class="icon-trash"></i></a>\n      <input type="submit" value="Update Player" class="btn btn-success btn-large pull-right">\n   </div>\n</fieldset>\n';});
 
 define('views/edit-player-view',['jquery', 'underscore', 'backbone', 'bootbox',
+'custom', 
 'text!templates/edit-player.html', 'bootstrap']
-, function($, _, Backbone, bootbox, _EditPlayer) {
+, function($, _, Backbone, bootbox, Custom, _EditPlayer) {
    return Backbone.View.extend({
       template: _.template(_EditPlayer)
       , initialize: function() {
          var that = this;
          this.form = this.$('form');
-         this.validColors = ['red', 'green', 'blue', 'black', 'white',
-          'yellow', 'pink', 'tan', 'gray'];
+         this.validColors = Custom.validColors;
          this.$el.on('hidden', function() {
             that.undelegateEvents();
          });
@@ -1849,7 +1913,7 @@ define('views/edit-player-view',['jquery', 'underscore', 'backbone', 'bootbox',
                var players = this.options.game.get('players');
                var keyToRemove = null;
                for (var i = 0; i < players.length; ++i) {
-                  if (players[i]._id == this.model._id) {
+                  if (players[i].guid == this.model.guid) {
                      keyToRemove = i;
                      break;
                   }
@@ -1875,7 +1939,7 @@ define('views/edit-player-view',['jquery', 'underscore', 'backbone', 'bootbox',
 
             var players = this.options.game.get('players');
             for (var i = 0; i < players.length; ++i) {
-               if (players[i]._id == that.model._id) {
+               if (players[i].guid == that.model.guid) {
                   players[i].name = data.name;
                   players[i].color= data.color;
                   break;
@@ -1892,39 +1956,11 @@ define('views/edit-player-view',['jquery', 'underscore', 'backbone', 'bootbox',
    });
 });
 
-define('text!templates/game.html',[],function () { return '<ul class="players">\n   <% for (var i = 0; i < players.length; ++i) { %>\n      <li data-playerid="<%-players[i]._id%>" class="<%-players[i].state%> <%-players[i].color%>">\n         <%-players[i].name%>\n         [<%-players[i].gameTimeString%><%\n         if (players[i].state == \'playing\' && time_per_turn > 0) {\n            %> + <%-players[i].turnTimeString%><% \n         } %>]\n      </li>\n   <% } %>\n</ul>\n';});
+define('text!templates/game.html',[],function () { return '<ul class="players">\n   <% for (var i = 0; i < players.length; ++i) { %>\n      <li data-playerid="<%-players[i].guid%>" class="<%-players[i].state%> <%-players[i].color%>">\n         <%-players[i].name%>\n         [<%-players[i].gameTimeString%><%\n         if (players[i].state == \'playing\' && time_per_turn > 0) {\n            %> + <%-players[i].turnTimeString%><% \n         } %>]\n      </li>\n   <% } %>\n</ul>\n';});
 
 define('text!templates/new-player.html',[],function () { return '<input type="text" name="name" value="Player <%-players.length + 1%>">\n<input type="submit" value="Add Player">\n';});
 
 define('text!templates/game-controls.html',[],function () { return '<div class="gameControls row-fluid">\n   <div class="span2">\n      <div class="row-fluid">\n         <div class="span12">\n            <a class="prevPlayerButton btn btn-inverse btn-block btn-large"><i class="icon-reply"></i></a>\n         </div>\n      </div>\n      <div class="row-fluid">\n         <div class="span12">\n            <a class="addPlayerButton btn btn-danger btn-block btn-large"><i class="icon-plus"></i> <i class="icon-user"></i></a>\n         </div>\n      </div>\n   </div>\n   <div class="span2">\n      <div class="row-fluid">\n         <div class="span12">\n            <a class="startClockButton btn btn-block btn-large"><i class="<%= \n            state == \'paused\' ? \'icon-play\' : state == \'active\' ? \'icon-pause\' : \'icon-refresh\' %>"></i><% /*-_.capitalize(state) */%></a>\n         </div>\n      </div>\n      <div class="row-fluid">\n         <div class="span12">\n            <a class="makePublicButton btn btn-warning btn-block btn-large"><i class="icon-user"></i> <i class="icon-exchange"></i></a>\n         </div>\n      </div>\n   </div>\n   <div class="span8">\n      <a class="nextPlayerButton btn btn-primary btn-large btn-block"><i class="icon-arrow-right"></i></a>\n   </div>\n</div>\n';});
-
-define('custom',['underscore'], function(_) {
-   return {
-      displayTime: function (timeInSeconds) {
-         timeInSeconds = _.max([0, timeInSeconds]);
-         var hours = Math.floor(timeInSeconds / 3600);
-         timeInSeconds -= hours * 3600;
-         var mins = Math.floor(timeInSeconds / 60);
-
-         if (mins < 10 && hours > 0) {
-            mins = "0" + mins;
-         }
-         var secs = Math.floor(timeInSeconds % 60);
-
-         if (secs < 10) {
-            secs = "0" + secs;
-         }
-
-         var timeString = mins + ":" + secs;
-
-         if (hours > 0) {
-            timeString = hours + ":" + player.gameTimeString;
-         }
-
-         return timeString;
-      }
-   }
-});
 
 define('views/game-view',['jquery', 'underscore', 'backbone',
 'views/edit-player-view',
@@ -1959,6 +1995,7 @@ _Game, _NewPlayer, _GameControls, Custom) {
          this.model.on('change', this.render, this);
          this.model.on('change:_id', function() {
             this.options.router.navigate('game/' + this.model.id);
+            this.model.startLongPolling();
          }, this);
          this.model.on('change:public', function() {
             if (this.model.get('public')) {
@@ -2026,16 +2063,7 @@ _Game, _NewPlayer, _GameControls, Custom) {
          }
          , 'click .addPlayerButton': function(ev) {
             ev.preventDefault();
-            var players = this.model.get('players');
-            var data = {
-               name: "Player " + (players.length + 1),
-               game_time_used: 0,
-               turn_time_used: 0,
-               state: 'waiting',
-               date_turn_started: null
-            };
-            players.push(data);
-            this.model.set('players', players);
+            this.model.addNewPlayer();
             if (this.model.get('public')) {
                this.model.save();
             } else {
@@ -2088,7 +2116,7 @@ _Game, _NewPlayer, _GameControls, Custom) {
             }
          }
          , 'click .makePublicButton': function(ev) {
-            this.model.set({'public': true}).save();
+            this.model.set({'public': true}, {silent: true}).save();
          }
          , 'click li': function(ev) {
             var li = $(ev.currentTarget);
@@ -2096,7 +2124,7 @@ _Game, _NewPlayer, _GameControls, Custom) {
             var players = this.model.get('players');
             var player = null;
             for (var i = 0; i < players.length; ++i) {
-               if (players[i]._id == playerid) {
+               if (players[i].guid == playerid) {
                   player = players[i];
                   break;
                }
@@ -2189,6 +2217,8 @@ define('views/new-game-view',['jquery', 'underscore', 'backbone',
                , public: false
                , players: []
             });
+            model.addNewPlayer();
+            model.addNewPlayer();
             //that.collection.add(model);
             that.options.gameView.setModel(model);
             this.options.router.navigate('game/new', {trigger: true});
@@ -2223,7 +2253,6 @@ MainMenuView) {
          var AppRouter = Backbone.Router.extend({
             routes: {
                'startGame': function() {
-                  console.log('startgame');
                   $('#main > div').addClass('hidden');
                   $('#newGame').removeClass('hidden');
                }

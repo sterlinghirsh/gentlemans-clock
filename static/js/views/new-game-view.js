@@ -18,6 +18,8 @@ define(['jquery', 'underscore', 'backbone',
                , public: false
                , players: []
             });
+            model.addNewPlayer();
+            model.addNewPlayer();
             //that.collection.add(model);
             that.options.gameView.setModel(model);
             this.options.router.navigate('game/new', {trigger: true});

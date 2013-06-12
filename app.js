@@ -37,6 +37,7 @@ db.once('open', function callback() {
       , public: { type: Boolean, default: false }
       , players: [{
          name: { type: String, trim: true, required: true }
+         , guid: {type: String, required: true, unique: true}
          , game_time_used: { type: Number, default: 0 }
          , turn_time_used: { type: Number, default: 0 }
          , date_turn_started: { type: Date, default: null }

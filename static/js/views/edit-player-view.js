@@ -1,13 +1,13 @@
 define(['jquery', 'underscore', 'backbone', 'bootbox',
+'custom', 
 'text!templates/edit-player.html', 'bootstrap']
-, function($, _, Backbone, bootbox, _EditPlayer) {
+, function($, _, Backbone, bootbox, Custom, _EditPlayer) {
    return Backbone.View.extend({
       template: _.template(_EditPlayer)
       , initialize: function() {
          var that = this;
          this.form = this.$('form');
-         this.validColors = ['red', 'green', 'blue', 'black', 'white',
-          'yellow', 'pink', 'tan', 'gray'];
+         this.validColors = Custom.validColors;
          this.$el.on('hidden', function() {
             that.undelegateEvents();
          });
@@ -33,7 +33,7 @@ define(['jquery', 'underscore', 'backbone', 'bootbox',
                var players = this.options.game.get('players');
                var keyToRemove = null;
                for (var i = 0; i < players.length; ++i) {
-                  if (players[i]._id == this.model._id) {
+                  if (players[i].guid == this.model.guid) {
                      keyToRemove = i;
                      break;
                   }
@@ -59,7 +59,7 @@ define(['jquery', 'underscore', 'backbone', 'bootbox',
 
             var players = this.options.game.get('players');
             for (var i = 0; i < players.length; ++i) {
-               if (players[i]._id == that.model._id) {
+               if (players[i].guid == that.model.guid) {
                   players[i].name = data.name;
                   players[i].color= data.color;
                   break;

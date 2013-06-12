@@ -23,5 +23,24 @@ define(['underscore'], function(_) {
 
          return timeString;
       }
+      , makeid: function(size) {
+         var text = "";
+         var possible = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+         for (var i=0; i < size; i++) {
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+         }
+
+         return text;
+      }
+      , validColors: ['red', 'green', 'blue', 'black', 'white',
+          'yellow', 'pink', 'tan', 'gray']
+      , getNextUnusedColor: function(usedColors) {
+         var unusedColors = _.difference(this.validColors, usedColors);
+         if (unusedColors.length == 0) {
+            return this.validColors[_.random(this.validColors.length - 1)];
+         } else {
+            return unusedColors[0];
+         }
+      }
    }
 });

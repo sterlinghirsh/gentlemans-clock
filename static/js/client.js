@@ -12,7 +12,6 @@ MainMenuView) {
          var AppRouter = Backbone.Router.extend({
             routes: {
                'startGame': function() {
-                  console.log('startgame');
                   $('#main > div').addClass('hidden');
                   $('#newGame').removeClass('hidden');
                }
