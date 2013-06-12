@@ -47,6 +47,13 @@ db.once('open', function callback() {
       res.render('index.html');
    });
 
+   app.get('/js', function (req, res) {
+      res.sendfile(__dirname + '/static/js/main-built.js');
+   });
+   app.get('/css', function (req, res) {
+      res.sendfile(__dirname + '/static/css/all.css');
+   });
+
    app.get('/api/games', function(req, res) {
       Game.find(function(err, games) {
          if (err) throw err;
