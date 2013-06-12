@@ -9,6 +9,7 @@ requirejs.config({
       "text": "lib/text",
       "date-shim": "lib/date-shim",
       "json": "lib/json3",
+      "bootbox": "lib/bootbox.min",
       "bootstrap": "lib/bootstrap.min"
    },
    "shim": {
@@ -28,6 +29,10 @@ requirejs.config({
       "bootstrap": {
          deps: ['jquery'],
          exports: '$.fn.popover'
+      },
+      "bootbox": {
+         deps: ['bootstrap', 'jquery'],
+         exports: 'bootbox'
       },
       "json": {
          exports: 'JSON'

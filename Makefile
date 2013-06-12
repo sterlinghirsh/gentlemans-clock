@@ -7,7 +7,7 @@ test: build run
 
 build: 
 	r.js -o static/js/build.js
-	lessc static/css/*.less > static/css/less_files.css
+	cat static/css/elements.less static/css/custom.less | lessc - > static/css/less_files.css
 	rm -f static/css/all.css && cat static/css/*.css > static/css/all.css
 
 push:

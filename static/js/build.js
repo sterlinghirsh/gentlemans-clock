@@ -11,6 +11,7 @@
       "text": "lib/text",
       "date-shim": "lib/date-shim",
       "json": "lib/json3",
+      "bootbox": "lib/bootbox.min",
       "bootstrap": "lib/bootstrap.min"
    },
    "shim": {
@@ -30,6 +31,10 @@
       "bootstrap": {
          deps: ['jquery'],
          exports: 'jQuery.fn.popover'
+      },
+      "bootbox": {
+         deps: ['bootstrap', 'jquery'],
+         exports: 'bootbox'
       },
       "jquery-serializeObject": {
          deps: ['jquery']

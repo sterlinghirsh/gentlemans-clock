@@ -1,3 +1,12 @@
+.horizontal-gradient (@startColor: #eee, @endColor: white) {
+   background-color: @startColor;
+   background-image: -webkit-gradient(linear, left top, right top, from(@startColor), to(@endColor));
+   background-image: -webkit-linear-gradient(left, @startColor, @endColor);
+   background-image: -moz-linear-gradient(left, @startColor, @endColor);
+   background-image: -ms-linear-gradient(left, @startColor, @endColor);
+   background-image: -o-linear-gradient(left, @startColor, @endColor);
+}
+
 #mainMenu {
    .startGame {
       height: 60%;
@@ -35,4 +44,48 @@
 
 .hidden {
    display: none;
+}
+
+.players {
+   margin-left: 0;
+   li {
+      padding: 2px;
+      border-width: 2px;
+      border-style: solid;
+      .rounded(3px);
+      list-style-type: none;
+      margin-bottom: 2px;
+      .transition(2s, ease-out);
+      font-weight: bold;
+   }
+
+   li.playing {
+      border-width: 4px;
+   }
+
+   .player-colors (@c1, @c2, @ctext) {
+      .horizontal-gradient(@c1, @c2);
+      border-color: @c1;
+      color: @ctext;
+   }
+
+   .red {
+      .player-colors(#c33, #e99, #fff);
+   }
+
+   .blue {
+      .player-colors(#33c, #99e, #fff);
+   }
+}
+
+#editPlayerFormHolder {
+   padding: 5px;
+   width: 300px;
+   margin-left: -150px;
+}
+
+.bootbox {
+   padding: 5px;
+   width: 300px;
+   margin-left: -150px;
 }

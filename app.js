@@ -22,6 +22,8 @@ function makeid(size) {
    return text;
 }
 
+var validColors = ['red', 'green', 'blue', 'black', 'white', 'yellow', 'pink', 'tan', 'gray'];
+
 db.once('open', function callback() {
    var gameSchema = mongoose.Schema({
       name: { type: String, trim: true, required: true, unique: true }
@@ -39,6 +41,7 @@ db.once('open', function callback() {
          , turn_time_used: { type: Number, default: 0 }
          , date_turn_started: { type: Date, default: null }
          , state: { type: String, enum: ['waiting', 'playing', 'won', 'lost', 'drew'], default: 'waiting' }
+         , color: { type: String, enum: validColors, default: 'red' }
       }]
    });
 

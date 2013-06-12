@@ -1,7 +1,10 @@
 define(['jquery', 'underscore', 'backbone',
+'views/edit-player-view',
 'text!templates/game.html', 'text!templates/new-player.html',
 'text!templates/game-controls.html', 'custom']
-, function($, _, Backbone, _Game, _NewPlayer, _GameControls, Custom) {
+, function($, _, Backbone, 
+EditPlayerView,
+_Game, _NewPlayer, _GameControls, Custom) {
    return Backbone.View.extend({
       template: _.template(_Game)
       , controlsTemplate: _.template(_GameControls)
@@ -16,8 +19,10 @@ define(['jquery', 'underscore', 'backbone',
             }
             //this.model.fetch(); // re-get the model
          }
+         /*
          this.refreshInterval = window.setInterval(
           _.bind(this.render, this), 1000);
+          */
       }
       , setModel: function(model) {
          if (this.model !== null) {
@@ -160,6 +165,29 @@ define(['jquery', 'underscore', 'backbone',
          }
          , 'click .makePublicButton': function(ev) {
             this.model.set({'public': true}).save();
+         }
+         , 'click li': function(ev) {
+            var li = $(ev.currentTarget);
+            var playerid = li.data('playerid');
+            var players = this.model.get('players');
+            var player = null;
+            console.log(playerid);
+            for (var i = 0; i < players.length; ++i) {
+               console.log(players[i]._id);
+               if (players[i]._id == playerid) {
+                  player = players[i];
+                  break;
+               }
+            }
+            if (player === null) {
+               console.error("Null player clicked.");
+               return;
+            }
+            this.editPlayerView = new EditPlayerView({
+               el: $('#editPlayerFormHolder')
+               , model: player
+               , game: this.model
+            });
          }
       }
    });

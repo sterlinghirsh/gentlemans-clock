@@ -1,3 +1,9 @@
+/*---------------------------------------------------
+    LESS Elements 0.9
+  ---------------------------------------------------
+    A set of useful LESS mixins
+    More info at: http://lesselements.com
+  ---------------------------------------------------*/
 #mainMenu .startGame {
   height: 60%;
   width: 100%;
@@ -25,4 +31,55 @@
 }
 .hidden {
   display: none;
+}
+.players {
+  margin-left: 0;
+}
+.players li {
+  padding: 2px;
+  border-width: 2px;
+  border-style: solid;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  list-style-type: none;
+  margin-bottom: 2px;
+  -webkit-transition: all 2s ease-out;
+  -moz-transition: all 2s ease-out;
+  -o-transition: all 2s ease-out;
+  transition: all 2s ease-out;
+  font-weight: bold;
+}
+.players li.playing {
+  border-width: 4px;
+}
+.players .red {
+  background-color: #cc3333;
+  background-image: -webkit-gradient(linear, left top, right top, from(#cc3333), to(#ee9999));
+  background-image: -webkit-linear-gradient(left, #cc3333, #ee9999);
+  background-image: -moz-linear-gradient(left, #cc3333, #ee9999);
+  background-image: -ms-linear-gradient(left, #cc3333, #ee9999);
+  background-image: -o-linear-gradient(left, #cc3333, #ee9999);
+  border-color: #cc3333;
+  color: #ffffff;
+}
+.players .blue {
+  background-color: #3333cc;
+  background-image: -webkit-gradient(linear, left top, right top, from(#3333cc), to(#9999ee));
+  background-image: -webkit-linear-gradient(left, #3333cc, #9999ee);
+  background-image: -moz-linear-gradient(left, #3333cc, #9999ee);
+  background-image: -ms-linear-gradient(left, #3333cc, #9999ee);
+  background-image: -o-linear-gradient(left, #3333cc, #9999ee);
+  border-color: #3333cc;
+  color: #ffffff;
+}
+#editPlayerFormHolder {
+  padding: 5px;
+  width: 300px;
+  margin-left: -150px;
+}
+.bootbox {
+  padding: 5px;
+  width: 300px;
+  margin-left: -150px;
 }

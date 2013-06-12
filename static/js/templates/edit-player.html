@@ -1,0 +1,25 @@
+<fieldset>
+   <legend>Edit Player (<%-name%>)</legend>
+   <div class="row-fluid">
+      <div class="span6">
+         <label for="playerName">Name</label>
+         <input type="text" value="<%-name%>" class="input-block-level" maxlength="16"
+          id="playerName" name="name">
+      </div>
+      <div class="span6">
+         <label for="playerColor">Color</label>
+         <select name="color" id="playerColor" class="input-block-level">
+            <% for (var i = 0; i < validColors.length; ++i) { %>
+            <option class="<%-validColors[i]%>" value="<%-validColors[i]%>"
+            <%= color == validColors[i] ? 'selected' : '' %>>
+               <%-_.capitalize(validColors[i])%>
+            </option>
+            <% } %>
+         </select>
+      </div>
+   </div>
+   <div class="form-actions">
+      <a class="btn btn-danger" id="removePlayerButton">Remove Player</a>
+      <input type="submit" value="Update Player" class="btn btn-success">
+   </div>
+</fieldset>
