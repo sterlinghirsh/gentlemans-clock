@@ -22,6 +22,7 @@ function($, _, Backbone) {
       , startClock: function(key) {
          var game = this;
          var players = this.get('players');
+         var time_per_turn = this.get('time_per_turn');
          
          if (players.length == 0) {
             return this;
@@ -42,8 +43,11 @@ function($, _, Backbone) {
                if (player.state == 'waiting') {
                   player.state = 'playing';
                   player.date_turn_started = new Date();
+               } else if (player.state == 'playing') {
+                  // Correct player is already set, we're probably recovering from pause.
+                  player.date_turn_started = new Date();
                }
-            } else if (player.state == 'playing' && key != tempKey) {
+            } else if (player.state == 'playing') {
                player.state = 'waiting';
                if (player.date_turn_started !== null) {
                   // This should roughtly match code in
@@ -58,9 +62,9 @@ function($, _, Backbone) {
                      player.turn_time_used = 0;
                   }
                   player.turn_time_used += timeDiff;
-                  if (player.turn_time_used > game.time_per_turn) {
-                     player.game_time_used += player.turn_time_used - game.time_per_turn;
-                     player.turn_time_used = player.time_per_turn;
+                  if (player.turn_time_used > time_per_turn) {
+                     player.game_time_used += player.turn_time_used - time_per_turn;
+                     player.turn_time_used = time_per_turn;
                   }
                   player.turn_time_used = 0;
                   player.date_turn_started = null;
@@ -77,6 +81,7 @@ function($, _, Backbone) {
       , pauseClock: function() {
          var game = this;
          var players = this.get('players');
+         var time_per_turn = this.get('time_per_turn');
          console.log("paus");
          
          if (players.length == 0) {
@@ -97,9 +102,9 @@ function($, _, Backbone) {
                   player.turn_time_used = 0;
                }
                player.turn_time_used += timeDiff;
-               if (player.turn_time_used > game.time_per_turn) {
-                  player.game_time_used += player.turn_time_used - game.time_per_turn;
-                  player.turn_time_used = player.time_per_turn;
+               if (player.turn_time_used > time_per_turn) {
+                  player.game_time_used += player.turn_time_used - time_per_turn;
+                  player.turn_time_used = time_per_turn;
                }
                player.date_turn_started = null;
             }
