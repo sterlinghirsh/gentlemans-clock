@@ -163,6 +163,7 @@ db.once('open', function callback() {
                      responses.splice(index, 1);
                   }
                });
+               console.log(responses.length + " responses sent.");
             });
          }
       });

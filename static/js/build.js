@@ -1,5 +1,7 @@
-requirejs.config({
-   "baseUrl": "static/js",
+({
+   name: 'lib/almond',
+   baseUrl: ".",
+   out: "main-built.js",
    "paths": {
       "jquery": "lib/jquery-1.10.1.min",
       "jquery-serializeObject": "lib/jquery.serializeObject.min",
@@ -27,15 +29,17 @@ requirejs.config({
       },
       "bootstrap": {
          deps: ['jquery'],
-         exports: '$.fn.popover'
+         exports: 'jQuery.fn.popover'
+      },
+      "jquery-serializeObject": {
+         deps: ['jquery']
       },
       "json": {
          exports: 'JSON'
       }
-   }
-});
-require(['underscore', 'underscore-string',
-'client', 'jquery-serializeObject', 'date-shim'], function (_, _s, client) {
-   _.mixin(_.string.exports());
-   client.initialize();
-});
+   },
+   include: ['main'],
+   wrap: true,
+   insertRequire: ['main']
+   //, optimize: 'none'
+})

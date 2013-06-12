@@ -23,6 +23,9 @@ GameListView, NewGameView, GameView) {
                });
             },
             error: function(collection, response, options) {
+                      console.log(JSON.stringify(collection));
+               console.log(JSON.stringify(response));
+               console.log(JSON.stringify(options));
                console.error("ERROR");
             }
          });

@@ -1,11 +1,14 @@
+<!DOCTYPE html>
 <html>
    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" type="text/css" href="static/css/bootstrap-combined.min.css">
       <script type="text/javascript">
          // Local time - server time.
          Date.now||(Date.now=function(){return+new Date});
          // 100 ms accounts for render time. I got this by running the code on
          // my local machine.
-         window.serverTimeDiff = Date.now() - <%=Date.now()%> - 100;
+         window.serverTimeDiff = (+new Date) - <%=Date.now()%> - 100;
          function serverToLocal(date) {
             return new Date(new Date(date).getTime() + window.serverTimeDiff);
          }
@@ -26,8 +29,10 @@
             <input type="submit" value="Create game!">
          </form>
       </div>
+      <!--
       <script type="text/javascript" data-main="/static/js/main.js" src="/static/js/lib/require.js"></script>
-      <div id="serverTime" style="display:none"><%=Date.now()%></div>
+      --!>
+      <script type="text/javascript" src="/static/js/main-built.js"></script>
    </body>
 </html>
 
