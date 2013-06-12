@@ -11,5 +11,5 @@ build:
 push:
 	git push
 
-pushLive:
+pushlive:
 	git push heroku master
