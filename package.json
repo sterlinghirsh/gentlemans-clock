@@ -8,6 +8,7 @@
       "mysql": "2.0.0-alpha8",
       "underscore": "*",
       "mongoose": "*",
-      "consolidate": "*"
+      "consolidate": "*",
+      "less": "*"
    }
 }

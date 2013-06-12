@@ -14,24 +14,57 @@
          }
       </script>
    <body>
-      <div id="gameList"></div>
-      <div id="gameDetail" style="border: 1px solid black">
-         <div id="gameDisplay"></div>
-         <form id="newPlayerForm">
-         </form>
+      <div id="main" class="container-fluid">
+         <div id="mainMenu" class="hidden">
+            <div class="row-fluid">
+               <div class="span12">
+                     <a class="btn btn-primary startGame" href="#startGame">Start</a>
+               </div>
+            </div>
+            <div class="row-fluid">
+               <div class="span12">
+                  <a class="btn btn-info joinGame" href="#joinGame">Join</a>
+               </div>
+            </div>
+         </div>
+         <div id="gameList" class="hidden"></div>
+         <div id="gameDetail" class="hidden">
+            <div id="gameDisplay"></div>
+            <div class="gameControlsHolder"></div>
+            <form id="newPlayerForm" class="modal hide fade">
+            </form>
+         </div>
+         <div id="newGame" class="hidden">
+            <form id="newGameForm" class="form-horizontal">
+               <fieldset>
+                  <legend>Start a new game</legend>
+                  <div class="control-group">
+                     <label class="control-label" for="time_per_turn">Seconds per turn</label>
+                     <div class="controls">
+                        <input type="number" value="5" class="input-mini" name="time_per_turn" id="time_per_turn">
+                     </div>
+                  </div>
+                  <div class="control-group">
+                     <label class="control-label" for="time_per_game">Seconds per game</label>
+                     <div class="controls">
+                        <input type="number" value="600" class="input-mini" name="time_per_game" id="time_per_game" step="15">
+                     </div>
+                  </div>
+                  <div class="row-fluid">
+                     <div class="span3">
+                        <a class="btn btn-warning btn-block btn-large" href="#">Cancel</a>
+                     </div>
+                     <div class="span9">
+                        <input type="submit" class="btn btn-success btn-block btn-large" value="Create game!">
+                     </div>
+                  </div>
+               </fieldset>
+            </form>
+         </div>
       </div>
-      <div id="newGame" style="border: 1px solid red">
-         <form id="newGameForm">
-            <h3>Create Game</h3>
-            <label>Name: <input type="text" name="name" value="Untitled"></label><br>
-            <label>Time per turn (seconds): <input type="number" value="5" name="time_per_turn"></label><br>
-            <label>Time per game (seconds): <input type="number" value="600" name="time_per_game"></label>
-            <input type="submit" value="Create game!">
-         </form>
-      </div>
-      <!--
+      <% /*
       <script type="text/javascript" data-main="/static/js/main.js" src="/static/js/lib/require.js"></script>
-      --!>
+      */ %>
       <script type="text/javascript" src="js"></script>
    </body>
 </html>

@@ -1,0 +1,30 @@
+<div class="gameControls row-fluid">
+   <div class="span2">
+      <div class="row-fluid">
+         <div class="span12">
+            <a class="prevPlayerButton btn btn-inverse btn-block btn-large"><i class="icon-reply"></i></a>
+         </div>
+      </div>
+      <div class="row-fluid">
+         <div class="span12">
+            <a class="addPlayerButton btn btn-danger btn-block btn-large"><i class="icon-plus"></i> <i class="icon-user"></i></a>
+         </div>
+      </div>
+   </div>
+   <div class="span2">
+      <div class="row-fluid">
+         <div class="span12">
+            <a class="startClockButton btn btn-block btn-large"><i class="<%= 
+            state == 'paused' ? 'icon-play' : state == 'active' ? 'icon-pause' : 'icon-refresh' %>"></i><% /*-_.capitalize(state) */%></a>
+         </div>
+      </div>
+      <div class="row-fluid">
+         <div class="span12">
+            <a class="makePublicButton btn btn-warning btn-block btn-large"><i class="icon-user"></i> <i class="icon-exchange"></i></a>
+         </div>
+      </div>
+   </div>
+   <div class="span8">
+      <a class="nextPlayerButton btn btn-primary btn-large btn-block"><i class="icon-arrow-right"></i></a>
+   </div>
+</div>

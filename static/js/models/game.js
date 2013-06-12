@@ -42,12 +42,10 @@ function($, _, Backbone) {
                if (player.state == 'waiting') {
                   player.state = 'playing';
                   player.date_turn_started = new Date();
-                  // TODO: Might have to add an offset here.
                }
-            } else if (player.state == 'playing') {
+            } else if (player.state == 'playing' && key != tempKey) {
                player.state = 'waiting';
                if (player.date_turn_started !== null) {
-                  // TODO: might have to add an offset here.
                   // This should roughtly match code in
                   // the put handler server side.
                   var timeDiff = Math.floor((new Date() - 
@@ -71,10 +69,61 @@ function($, _, Backbone) {
          });
 
          this.set({
-            'state': 'active',
-            'players': players
+            state: 'active'
+            , players: players
          });
          return this;
+      }
+      , pauseClock: function() {
+         var game = this;
+         var players = this.get('players');
+         console.log("paus");
+         
+         if (players.length == 0) {
+            return this;
+         }
+
+         var key = this.getActivePlayerKey() || 0;
+         
+         _.each(players, function(player, tempKey) {
+            if (player.state == 'playing') {
+               var timeDiff = Math.floor((new Date() - 
+                serverToLocal(player.date_turn_started)) / 1000);
+
+               if (player.game_time_used === null) {
+                  player.game_time_used = 0;
+               }
+               if (player.turn_time_used === null) {
+                  player.turn_time_used = 0;
+               }
+               player.turn_time_used += timeDiff;
+               if (player.turn_time_used > game.time_per_turn) {
+                  player.game_time_used += player.turn_time_used - game.time_per_turn;
+                  player.turn_time_used = player.time_per_turn;
+               }
+               player.date_turn_started = null;
+            }
+         });
+         
+         this.set({
+            state: 'paused'
+            , players: players
+         });
+         return this;
+      }
+      , resetClock: function() {
+         var players = this.get('players');
+         _.each(players, function(player) {
+            player.game_time_used = player.turn_time_used = 0;
+            player_date_turn_started = null;
+            player_state = 'waiting';
+         });
+         this.set({
+            state: 'paused'
+            , current_turn: 1
+            , state: 'paused'
+            , players: players
+         });
       }
       , startNextPlayer: function() {
          var key = this.getActivePlayerKey();
@@ -84,7 +133,18 @@ function($, _, Backbone) {
             key = (key + 1) % this.get('players').length;
          }
          return this.startClock(key);
-      }, startLongPolling: function() {
+      }
+      , startPrevPlayer: function() {
+         var key = this.getActivePlayerKey();
+         var numPlayers = this.get('players').length;
+         if (key === null) {
+            key = numPlayers - 1;
+         } else {
+            key = (numPlayers + key - 1) % numPlayers;
+         }
+         return this.startClock(key);
+      }
+      , startLongPolling: function() {
          this.longPolling = true;
          this.executeLongPolling();
       }, executeLongPolling: function() {

@@ -12,10 +12,19 @@ var app = express();
 // This will be keyed on game id.
 var pendingResponses = {};
 
+function makeid(size) {
+   var text = "";
+   var possible = "abcdefghijklmnopqrstuvwxyz";
+   for (var i=0; i < size; i++) {
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+   }
+
+   return text;
+}
+
 db.once('open', function callback() {
    var gameSchema = mongoose.Schema({
-      name: { type: String, trim: true, required: true }
-      , password: { type: String, trim: true }
+      name: { type: String, trim: true, required: true, unique: true }
       , current_turn: { type: Number, min: 1, default: 1 }
       , time_per_game: { type: Number, min: 0, default: 300 }
       , time_per_turn: { type: Number, min: -1, default: 2 }
@@ -23,6 +32,7 @@ db.once('open', function callback() {
       , date_updated: { type: Date, default: Date.now }
       , state: { type: String, enum: ['paused', 'active', 'finished', 'canceled'], default: 'paused' }
       , count_up: { type: Boolean, default: false }
+      , public: { type: Boolean, default: false }
       , players: [{
          name: { type: String, trim: true, required: true }
          , game_time_used: { type: Number, default: 0 }
@@ -90,6 +100,7 @@ db.once('open', function callback() {
    app.post('/api/games', function(req, res) {
       var newGame = new Game(req.body);
       newGame.date_created = newGame.date_updated = Date.now();
+      newGame.name = makeid(7);
       newGame.save(function (err) {
          if (err) throw err;
          res.json(newGame);
@@ -100,6 +111,7 @@ db.once('open', function callback() {
       Game.findById(req.params.id, function (err, game) {
          var gameData = req.body;
 
+         gameData.name = game.name;
          gameData.current_turn = game.current_turn;
          gameData.date_updated = Date.now();
          gameData.date_created = game.date_created;
@@ -183,6 +195,7 @@ db.once('open', function callback() {
    });
 
    app.use("/static", express.static(__dirname + "/static"));
+   app.use("/font", express.static(__dirname + "/static/font"));
 
    var port = process.env.PORT || 3000;
    app.listen(port);

@@ -9,10 +9,23 @@ define(['jquery', 'underscore', 'backbone',
             var form = $(ev.currentTarget);
             var data = form.serializeObject();
             var model = new Game(data);
-            model.save(null, {success: function() {
-               that.collection.add(model);
-               that.options.gameView.setModel(model);
+            model.set({
+               state: 'paused'
+               , date_created: new Date
+               , date_updated: new Date
+               , current_turn: 1
+               , count_up: false
+               , public: false
+               , players: []
+            });
+            //that.collection.add(model);
+            that.options.gameView.setModel(model);
+            this.options.router.navigate('game/new', {trigger: true});
+            /*
+            model.save(null, {success: function(model) {
+               //;
             }});
+            */
          }
       }
    });
