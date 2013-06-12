@@ -152,7 +152,12 @@ _Game, _NewPlayer, _GameControls, Custom) {
             }
          }
          , 'click .makePublicButton': function(ev) {
-            this.model.set({'public': true}, {silent: true}).save();
+            var model = this.model;
+            this.model.set({'public': true}, {silent: true}).save(null, {
+               success: function() {
+                  bootbox.alert("Have friends join with code: " + model.get('name'));
+               }
+            });
          }
          , 'click li': function(ev) {
             var li = $(ev.currentTarget);

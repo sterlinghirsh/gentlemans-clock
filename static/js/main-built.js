@@ -2116,7 +2116,12 @@ _Game, _NewPlayer, _GameControls, Custom) {
             }
          }
          , 'click .makePublicButton': function(ev) {
-            this.model.set({'public': true}, {silent: true}).save();
+            var model = this.model;
+            this.model.set({'public': true}, {silent: true}).save(null, {
+               success: function() {
+                  bootbox.alert("Have friends join with code: " + model.get('name'));
+               }
+            });
          }
          , 'click li': function(ev) {
             var li = $(ev.currentTarget);
@@ -2222,16 +2227,10 @@ define('views/new-game-view',['jquery', 'underscore', 'backbone',
             //that.collection.add(model);
             that.options.gameView.setModel(model);
             this.options.router.navigate('game/new', {trigger: true});
-            /*
-            model.save(null, {success: function(model) {
-               //;
-            }});
-            */
          }
       }
    });
 });
-
 
 define('views/main-menu',['jquery', 'underscore', 'backbone']
 , function($, _, Backbone) {
@@ -2257,7 +2256,8 @@ MainMenuView) {
                   $('#newGame').removeClass('hidden');
                }
                , 'joinGame': function() {
-                  console.log("hiya!");
+                  $('#main > div').addClass('hidden');
+                  $('#joinGameView').removeClass('hidden');
                }
                , 'game/:id': function(id) {
                   if (id == 'new' && (sharedGameView === null || sharedGameView.model === null)) {
@@ -2307,6 +2307,15 @@ MainMenuView) {
             gameView: sharedGameView,
             router: app_router
          });
+
+         $('#joinGameForm').submit(function(ev) {
+            ev.preventDefault();
+            var joinCode = $('#joinCodeInput').val();
+            $.getJSON('/api/byJoinCode/' + joinCode, function(data) {
+               app_router.navigate('/game/' + data._id, {trigger: true});
+            });
+         });
+
          /*
          var gameList = new Games;
          gameList.fetch({

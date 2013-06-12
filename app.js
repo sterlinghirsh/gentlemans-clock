@@ -82,6 +82,12 @@ db.once('open', function callback() {
       });
    });
 
+   app.get('/api/byJoinCode/:joinCode', function(req, res) {
+      Game.findOne({name: req.params.joinCode}, function(err, game) {
+         res.json(game);
+      });
+   });
+
    app.get('/api/games/:id/long_polling/:date', function(req, res) {
       Game.findById(req.params.id, function (err, game) {
          if (err) throw err;
@@ -104,7 +110,7 @@ db.once('open', function callback() {
    app.post('/api/games', function(req, res) {
       var newGame = new Game(req.body);
       newGame.date_created = newGame.date_updated = Date.now();
-      newGame.name = makeid(7);
+      newGame.name = makeid(5);
       newGame.save(function (err) {
          if (err) throw err;
          res.json(newGame);

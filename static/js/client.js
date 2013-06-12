@@ -16,7 +16,8 @@ MainMenuView) {
                   $('#newGame').removeClass('hidden');
                }
                , 'joinGame': function() {
-                  console.log("hiya!");
+                  $('#main > div').addClass('hidden');
+                  $('#joinGameView').removeClass('hidden');
                }
                , 'game/:id': function(id) {
                   if (id == 'new' && (sharedGameView === null || sharedGameView.model === null)) {
@@ -66,6 +67,15 @@ MainMenuView) {
             gameView: sharedGameView,
             router: app_router
          });
+
+         $('#joinGameForm').submit(function(ev) {
+            ev.preventDefault();
+            var joinCode = $('#joinCodeInput').val();
+            $.getJSON('/api/byJoinCode/' + joinCode, function(data) {
+               app_router.navigate('/game/' + data._id, {trigger: true});
+            });
+         });
+
          /*
          var gameList = new Games;
          gameList.fetch({

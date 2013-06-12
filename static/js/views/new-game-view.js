@@ -23,13 +23,7 @@ define(['jquery', 'underscore', 'backbone',
             //that.collection.add(model);
             that.options.gameView.setModel(model);
             this.options.router.navigate('game/new', {trigger: true});
-            /*
-            model.save(null, {success: function(model) {
-               //;
-            }});
-            */
          }
       }
    });
 });
-
