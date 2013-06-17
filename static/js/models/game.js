@@ -2,7 +2,7 @@ define(['jquery', 'underscore', 'backbone', 'custom'],
 function($, _, Backbone, Custom) {
    return Backbone.Model.extend({
       urlRoot: '/api/games'
-      , idAttribute: '_id'
+      , idAttribute: 'join_code'
       , longPolling: false
       , getActivePlayerKey: function() {
          var players = this.get('players');

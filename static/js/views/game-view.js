@@ -29,8 +29,8 @@ _Game, _NewPlayer, _GameControls, Custom) {
          }
          this.model = model;
          this.model.on('change', this.render, this);
-         this.model.on('change:_id', function() {
-            this.options.router.navigate('game/' + this.model.id);
+         this.model.on('change:join_code', function() {
+            this.options.router.navigate('game/' + this.model.get('join_code'));
             this.model.startLongPolling();
          }, this);
          this.model.on('change:public', function() {
@@ -155,7 +155,7 @@ _Game, _NewPlayer, _GameControls, Custom) {
             var model = this.model;
             this.model.set({'public': true}, {silent: true}).save(null, {
                success: function() {
-                  bootbox.alert("Have friends join with code: " + model.get('name'));
+                  bootbox.alert("Have friends join with code: " + model.get('join_code'));
                }
             });
          }

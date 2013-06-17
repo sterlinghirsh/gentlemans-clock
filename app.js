@@ -26,7 +26,7 @@ var validColors = ['red', 'green', 'blue', 'black', 'white', 'yellow', 'pink', '
 
 db.once('open', function callback() {
    var gameSchema = mongoose.Schema({
-      name: { type: String, trim: true, required: true, unique: true }
+      join_code: { type: String, trim: true, required: true, unique: true }
       , current_turn: { type: Number, min: 1, default: 1 }
       , time_per_game: { type: Number, min: 0, default: 300 }
       , time_per_turn: { type: Number, min: -1, default: 2 }
@@ -75,21 +75,19 @@ db.once('open', function callback() {
       });
    });
    
-   app.get('/api/games/:id', function(req, res) {
-      Game.findById(req.params.id, function(err, game) {
+   app.get('/api/games/:join_code', function(req, res) {
+      Game.findOne({join_code: req.params.join_code.toLowerCase()}, function(err, game) {
+         if (game === null) {
+            res.status(404).send();
+            return;
+         }
          if (err) throw err;
          res.json(game);
       });
    });
 
-   app.get('/api/byJoinCode/:joinCode', function(req, res) {
-      Game.findOne({name: req.params.joinCode}, function(err, game) {
-         res.json(game);
-      });
-   });
-
-   app.get('/api/games/:id/long_polling/:date', function(req, res) {
-      Game.findById(req.params.id, function (err, game) {
+   app.get('/api/games/:join_code/long_polling/:date', function(req, res) {
+      Game.findOne({join_code: req.params.join_code.toLowerCase()}, function(err, game) {
          if (err) throw err;
          if (game.date_updated > new Date(req.params.date)) {
             // No long poll, return immediately.
@@ -110,18 +108,18 @@ db.once('open', function callback() {
    app.post('/api/games', function(req, res) {
       var newGame = new Game(req.body);
       newGame.date_created = newGame.date_updated = Date.now();
-      newGame.name = makeid(5);
+      newGame.join_code = makeid(5);
+      // TODO: Check to make sure we don't have any games with that join_code.
       newGame.save(function (err) {
          if (err) throw err;
          res.json(newGame);
       });
    });
    
-   app.put('/api/games/:id', function(req, res) {
-      Game.findById(req.params.id, function (err, game) {
+   app.put('/api/games/:join_code', function(req, res) {
+      Game.findOne({join_code: req.params.join_code.toLowerCase()}, function(err, game) {
          var gameData = req.body;
 
-         gameData.name = game.name;
          gameData.current_turn = game.current_turn;
          gameData.date_updated = Date.now();
          gameData.date_created = game.date_created;

@@ -1274,7 +1274,7 @@ define('models/game',['jquery', 'underscore', 'backbone', 'custom'],
 function($, _, Backbone, Custom) {
    return Backbone.Model.extend({
       urlRoot: '/api/games'
-      , idAttribute: '_id'
+      , idAttribute: 'join_code'
       , longPolling: false
       , getActivePlayerKey: function() {
          var players = this.get('players');
@@ -1993,8 +1993,8 @@ _Game, _NewPlayer, _GameControls, Custom) {
          }
          this.model = model;
          this.model.on('change', this.render, this);
-         this.model.on('change:_id', function() {
-            this.options.router.navigate('game/' + this.model.id);
+         this.model.on('change:join_code', function() {
+            this.options.router.navigate('game/' + this.model.get('join_code'));
             this.model.startLongPolling();
          }, this);
          this.model.on('change:public', function() {
@@ -2119,7 +2119,7 @@ _Game, _NewPlayer, _GameControls, Custom) {
             var model = this.model;
             this.model.set({'public': true}, {silent: true}).save(null, {
                success: function() {
-                  bootbox.alert("Have friends join with code: " + model.get('name'));
+                  bootbox.alert("Have friends join with code: " + model.get('join_code'));
                }
             });
          }
@@ -2258,25 +2258,34 @@ MainMenuView) {
                , 'joinGame': function() {
                   $('#main > div').addClass('hidden');
                   $('#joinGameView').removeClass('hidden');
+                  $('#joinCodeInput').focus();
                }
-               , 'game/:id': function(id) {
-                  if (id == 'new' && (sharedGameView === null || sharedGameView.model === null)) {
+               , 'game/:join_code': function(join_code) {
+                  var that = this;
+                  if (join_code == 'new' && (sharedGameView === null || sharedGameView.model === null)) {
                      return this.navigate('startGame', {trigger: true});
                   }
 
-                  if (id != 'new') {
+                  if (join_code != 'new') {
                      // Load the game.
                      var newModel = new Game({
-                        _id: id
+                        join_code: join_code
                      });
                      newModel.fetch({
                         success: function() {
                            sharedGameView.setModel(newModel);
                         }
+                        , error: function() {
+                           return that.navigate('joinError', {trigger: true});
+                        }
                      });
                   }
                   $('#main > div').addClass('hidden');
                   $('#gameDetail').removeClass('hidden');
+               }
+               , 'joinError': function() {
+                  $('#main > div').addClass('hidden');
+                  $('#joinError').removeClass('hidden');
                }
                , '*path': function() {
                   $('#main > div').addClass('hidden');
@@ -2310,10 +2319,8 @@ MainMenuView) {
 
          $('#joinGameForm').submit(function(ev) {
             ev.preventDefault();
-            var joinCode = $('#joinCodeInput').val();
-            $.getJSON('/api/byJoinCode/' + joinCode, function(data) {
-               app_router.navigate('/game/' + data._id, {trigger: true});
-            });
+            var join_code = $('#joinCodeInput').val();
+            app_router.navigate('/game/' + join_code, {trigger: true});
          });
 
          /*
