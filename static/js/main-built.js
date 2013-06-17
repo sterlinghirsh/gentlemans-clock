@@ -1392,13 +1392,12 @@ function($, _, Backbone, Custom) {
          var players = this.get('players');
          _.each(players, function(player) {
             player.game_time_used = player.turn_time_used = 0;
-            player_date_turn_started = null;
-            player_state = 'waiting';
+            player.date_turn_started = null;
+            player.state = 'waiting';
          });
          this.set({
             state: 'paused'
             , current_turn: 1
-            , state: 'paused'
             , players: players
          });
       }
@@ -1902,12 +1901,11 @@ define('views/edit-player-view',['jquery', 'underscore', 'backbone', 'bootbox',
          this.$el.modal();
       }, events: {
          'click #removePlayerButton': function(ev) {
-            var that = this;
             ev.preventDefault();
             this.undelegateEvents();
             bootbox.confirm("Are you sure you want to remove this player? You cannot undo this action.",
              _.bind(function(result) {
-               that.delegateEvents();
+               this.delegateEvents();
                if (!result)
                return;
                var players = this.options.game.get('players');
@@ -1960,19 +1958,23 @@ define('text!templates/game.html',[],function () { return '<ul class="players">\
 
 define('text!templates/new-player.html',[],function () { return '<input type="text" name="name" value="Player <%-players.length + 1%>">\n<input type="submit" value="Add Player">\n';});
 
-define('text!templates/game-controls.html',[],function () { return '<div class="gameControls row-fluid">\n   <div class="span2">\n      <div class="row-fluid">\n         <div class="span12">\n            <a class="prevPlayerButton btn btn-inverse btn-block btn-large"><i class="icon-reply"></i></a>\n         </div>\n      </div>\n      <div class="row-fluid">\n         <div class="span12">\n            <a class="addPlayerButton btn btn-danger btn-block btn-large"><i class="icon-plus"></i> <i class="icon-user"></i></a>\n         </div>\n      </div>\n   </div>\n   <div class="span2">\n      <div class="row-fluid">\n         <div class="span12">\n            <a class="startClockButton btn btn-block btn-large"><i class="<%= \n            state == \'paused\' ? \'icon-play\' : state == \'active\' ? \'icon-pause\' : \'icon-refresh\' %>"></i><% /*-_.capitalize(state) */%></a>\n         </div>\n      </div>\n      <div class="row-fluid">\n         <div class="span12">\n            <a class="makePublicButton btn btn-warning btn-block btn-large"><i class="icon-user"></i> <i class="icon-exchange"></i></a>\n         </div>\n      </div>\n   </div>\n   <div class="span8">\n      <a class="nextPlayerButton btn btn-primary btn-large btn-block"><i class="icon-arrow-right"></i></a>\n   </div>\n</div>\n';});
+define('text!templates/game-controls.html',[],function () { return '<div class="gameControls row-fluid">\n   <div class="span2">\n      <div class="row-fluid">\n         <div class="span12">\n            <a class="prevPlayerButton btn btn-inverse btn-block btn-large"><i class="icon-arrow-left"></i></a>\n         </div>\n      </div>\n      <div class="row-fluid">\n         <div class="span12">\n            <a class="addPlayerButton btn btn-danger btn-block btn-large"><i class="icon-plus"></i> <i class="icon-user"></i></a>\n         </div>\n      </div>\n   </div>\n   <div class="span2">\n      <div class="row-fluid">\n         <div class="span12">\n            <a class="startClockButton btn btn-block btn-large"><i class="<%= \n            state == \'paused\' ? \'icon-play\' : state == \'active\' ? \'icon-pause\' : \'icon-refresh\' %>"></i><% /*-_.capitalize(state) */%></a>\n         </div>\n      </div>\n      <div class="row-fluid">\n         <div class="span12">\n            <a class="gameSettingsButton btn btn-warning btn-block btn-large"><i class="icon-cog"></i></a>\n         </div>\n      </div>\n   </div>\n   <div class="span8">\n      <a class="nextPlayerButton btn btn-primary btn-large btn-block"><i class="icon-arrow-right"></i></a>\n   </div>\n</div>\n';});
+
+define('text!templates/game-settings.html',[],function () { return '<% if (public) { %>\n<a class="btn btn-large btn-block btn-info disabled">\n   <i class="icon-group"></i> Join Code: <strong><%-join_code%></strong>\n</a>\n<% } else { %>\n<a class="makePublicButton btn btn-info btn-block btn-large">\n   <i class="icon-group"></i> Make Game Public\n</a>\n<% } %>\n<a class="resetClockButton btn btn-danger btn-block btn-large">\n   <i class="icon-refresh"></i> Reset Clock</i>\n</a>\n<a class="returnToMainMenuButton btn btn-large btn-warning btn-block">\n   <i class="icon-ban-circle"></i> Quit Game\n</a>\n<a class="btn btn-large btn-block btn-success" data-dismiss="modal">\n   <i class="icon-reply"></i> Return to Game\n</a>\n';});
 
 define('views/game-view',['jquery', 'underscore', 'backbone',
 'views/edit-player-view',
 'text!templates/game.html', 'text!templates/new-player.html',
-'text!templates/game-controls.html', 'custom']
+'text!templates/game-controls.html', 
+'text!templates/game-settings.html', 'custom']
 , function($, _, Backbone, 
 EditPlayerView,
-_Game, _NewPlayer, _GameControls, Custom) {
+_Game, _NewPlayer, _GameControls, _GameSettings, Custom) {
    return Backbone.View.extend({
       template: _.template(_Game)
       , controlsTemplate: _.template(_GameControls)
       , newPlayerTemplate: _.template(_NewPlayer)
+      , settingsTemplate: _.template(_GameSettings)
       , lastNumPlayers: -1
       , initialize: function() {
          if (this.model !== null) {
@@ -2048,7 +2050,6 @@ _Game, _NewPlayer, _GameControls, Custom) {
             this.lastState = game.state;
             this.$('.gameControlsHolder').html(this.controlsTemplate(game));
          }
-         this.delegateEvents();
          return this;
       }
       , events: {
@@ -2088,16 +2089,6 @@ _Game, _NewPlayer, _GameControls, Custom) {
                this.render();
             }
          }
-         , 'click .resetClockButton': function(ev) {
-            ev.preventDefault();
-
-            this.model.resetClock();
-            if (this.model.get('public')) {
-               this.model.save();
-            } else {
-               this.render();
-            }
-         }
          , 'click .startClockButton': function(ev) {
             ev.preventDefault();
 
@@ -2122,6 +2113,32 @@ _Game, _NewPlayer, _GameControls, Custom) {
                   bootbox.alert("Have friends join with code: " + model.get('join_code'));
                }
             });
+         }, 'click .resetClockButton': function(ev) {
+            this.undelegateEvents();
+            bootbox.confirm("Are you sure you want to reset the clock? All players' times will be lost.", 
+            _.bind(function(result) {
+               this.delegateEvents();
+               if (!result)  return;
+
+               this.$('#gameSettingsFormHolder').modal('hide');
+               this.model.resetClock();
+               if (this.model.get('public')) {
+                  this.model.save();
+               } else {
+                  this.model.render();
+               }
+            }, this));
+         }
+         , 'click .returnToMainMenuButton': function(ev) {
+            ev.preventDefault();
+            this.undelegateEvents();
+            bootbox.confirm("Are you sure you want to leave the current game? It will be lost if it's not public.", 
+            _.bind(function(result) {
+               this.delegateEvents();
+               if (!result) return;
+               this.$('#gameSettingsFormHolder').modal('hide');
+               this.options.router.navigate('#', {trigger: true});
+            }, this));
          }
          , 'click li': function(ev) {
             var li = $(ev.currentTarget);
@@ -2144,6 +2161,9 @@ _Game, _NewPlayer, _GameControls, Custom) {
                , game: this.model
                , gameView: this
             });
+         }
+         , 'click .gameSettingsButton': function(ev) {
+            this.$('#gameSettingsFormHolder').html(this.settingsTemplate(this.model.toJSON())).modal();
          }
       }
    });

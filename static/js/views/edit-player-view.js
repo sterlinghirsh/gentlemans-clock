@@ -22,12 +22,11 @@ define(['jquery', 'underscore', 'backbone', 'bootbox',
          this.$el.modal();
       }, events: {
          'click #removePlayerButton': function(ev) {
-            var that = this;
             ev.preventDefault();
             this.undelegateEvents();
             bootbox.confirm("Are you sure you want to remove this player? You cannot undo this action.",
              _.bind(function(result) {
-               that.delegateEvents();
+               this.delegateEvents();
                if (!result)
                return;
                var players = this.options.game.get('players');

@@ -120,13 +120,12 @@ function($, _, Backbone, Custom) {
          var players = this.get('players');
          _.each(players, function(player) {
             player.game_time_used = player.turn_time_used = 0;
-            player_date_turn_started = null;
-            player_state = 'waiting';
+            player.date_turn_started = null;
+            player.state = 'waiting';
          });
          this.set({
             state: 'paused'
             , current_turn: 1
-            , state: 'paused'
             , players: players
          });
       }

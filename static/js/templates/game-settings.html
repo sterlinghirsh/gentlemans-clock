@@ -1,0 +1,18 @@
+<% if (public) { %>
+<a class="btn btn-large btn-block btn-info disabled">
+   <i class="icon-group"></i> Join Code: <strong><%-join_code%></strong>
+</a>
+<% } else { %>
+<a class="makePublicButton btn btn-info btn-block btn-large">
+   <i class="icon-group"></i> Make Game Public
+</a>
+<% } %>
+<a class="resetClockButton btn btn-danger btn-block btn-large">
+   <i class="icon-refresh"></i> Reset Clock</i>
+</a>
+<a class="returnToMainMenuButton btn btn-large btn-warning btn-block">
+   <i class="icon-ban-circle"></i> Quit Game
+</a>
+<a class="btn btn-large btn-block btn-success" data-dismiss="modal">
+   <i class="icon-reply"></i> Return to Game
+</a>

@@ -118,9 +118,9 @@ db.once('open', function callback() {
    
    app.put('/api/games/:join_code', function(req, res) {
       Game.findOne({join_code: req.params.join_code.toLowerCase()}, function(err, game) {
+         var resettingGame = false;
          var gameData = req.body;
 
-         gameData.current_turn = game.current_turn;
          gameData.date_updated = Date.now();
          gameData.date_created = game.date_created;
 
@@ -131,6 +131,12 @@ db.once('open', function callback() {
                player.date_turn_started = null;
                player.game_time_used = 0;
                player.turn_time_used = 0;
+            } else if (player.game_time_used == 0 &&
+             player.turn_time_used == 0 &&
+             player.date_turn_started === null &&
+             player.state == 'waiting') {
+               // We're resetting the player, so don't do anything fancy.
+               resettingGame = true;
             } else if (player.date_turn_started !== null &&
              player.state == 'playing' && 
              dbPlayer.date_turn_started === null &&
@@ -160,6 +166,12 @@ db.once('open', function callback() {
             }
             return player;
          });
+
+         if (resettingGame || gameData.players.length === 0) {
+            gameData.current_turn = 1;
+            gameData.state = 'paused';
+         }
+
          game.set(gameData);
          game.save(function (err) {
             if (err) throw err;

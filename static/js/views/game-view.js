@@ -1,14 +1,16 @@
 define(['jquery', 'underscore', 'backbone',
 'views/edit-player-view',
 'text!templates/game.html', 'text!templates/new-player.html',
-'text!templates/game-controls.html', 'custom']
+'text!templates/game-controls.html', 
+'text!templates/game-settings.html', 'custom']
 , function($, _, Backbone, 
 EditPlayerView,
-_Game, _NewPlayer, _GameControls, Custom) {
+_Game, _NewPlayer, _GameControls, _GameSettings, Custom) {
    return Backbone.View.extend({
       template: _.template(_Game)
       , controlsTemplate: _.template(_GameControls)
       , newPlayerTemplate: _.template(_NewPlayer)
+      , settingsTemplate: _.template(_GameSettings)
       , lastNumPlayers: -1
       , initialize: function() {
          if (this.model !== null) {
@@ -84,7 +86,6 @@ _Game, _NewPlayer, _GameControls, Custom) {
             this.lastState = game.state;
             this.$('.gameControlsHolder').html(this.controlsTemplate(game));
          }
-         this.delegateEvents();
          return this;
       }
       , events: {
@@ -124,16 +125,6 @@ _Game, _NewPlayer, _GameControls, Custom) {
                this.render();
             }
          }
-         , 'click .resetClockButton': function(ev) {
-            ev.preventDefault();
-
-            this.model.resetClock();
-            if (this.model.get('public')) {
-               this.model.save();
-            } else {
-               this.render();
-            }
-         }
          , 'click .startClockButton': function(ev) {
             ev.preventDefault();
 
@@ -158,6 +149,32 @@ _Game, _NewPlayer, _GameControls, Custom) {
                   bootbox.alert("Have friends join with code: " + model.get('join_code'));
                }
             });
+         }, 'click .resetClockButton': function(ev) {
+            this.undelegateEvents();
+            bootbox.confirm("Are you sure you want to reset the clock? All players' times will be lost.", 
+            _.bind(function(result) {
+               this.delegateEvents();
+               if (!result)  return;
+
+               this.$('#gameSettingsFormHolder').modal('hide');
+               this.model.resetClock();
+               if (this.model.get('public')) {
+                  this.model.save();
+               } else {
+                  this.model.render();
+               }
+            }, this));
+         }
+         , 'click .returnToMainMenuButton': function(ev) {
+            ev.preventDefault();
+            this.undelegateEvents();
+            bootbox.confirm("Are you sure you want to leave the current game? It will be lost if it's not public.", 
+            _.bind(function(result) {
+               this.delegateEvents();
+               if (!result) return;
+               this.$('#gameSettingsFormHolder').modal('hide');
+               this.options.router.navigate('#', {trigger: true});
+            }, this));
          }
          , 'click li': function(ev) {
             var li = $(ev.currentTarget);
@@ -180,6 +197,9 @@ _Game, _NewPlayer, _GameControls, Custom) {
                , game: this.model
                , gameView: this
             });
+         }
+         , 'click .gameSettingsButton': function(ev) {
+            this.$('#gameSettingsFormHolder').html(this.settingsTemplate(this.model.toJSON())).modal();
          }
       }
    });
