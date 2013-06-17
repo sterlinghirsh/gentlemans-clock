@@ -1276,6 +1276,11 @@ function($, _, Backbone, Custom) {
       urlRoot: '/api/games'
       , idAttribute: 'join_code'
       , longPolling: false
+      , initialize: function() {
+         // Not throttling successCallback. Might later, I guess.
+         this.successCallback = _.bind(this.onFetch, this);
+         this.errorCallback = _.throttle(_.bind(this.onFetch, this), 5000);
+      }
       , getActivePlayerKey: function() {
          var players = this.get('players');
          var activePlayerKey = null;
@@ -1425,7 +1430,12 @@ function($, _, Backbone, Custom) {
          this.executeLongPolling();
       }, executeLongPolling: function() {
          if (this.longPolling) {
-            this.fetch({success: _.bind(this.onFetch, this)});
+            _.delay(_.bind(function() {
+               this.fetch({
+                  success: this.successCallback
+                  , error: this.errorCallback
+               });
+            }, this), 100);
          }
       }, stopLongPolling: function() {
          this.longPolling = false;
@@ -1960,7 +1970,7 @@ define('text!templates/new-player.html',[],function () { return '<input type="te
 
 define('text!templates/game-controls.html',[],function () { return '<div class="gameControls row-fluid">\n   <div class="span2">\n      <div class="row-fluid">\n         <div class="span12">\n            <a class="prevPlayerButton btn btn-inverse btn-block btn-large"><i class="icon-arrow-left"></i></a>\n         </div>\n      </div>\n      <div class="row-fluid">\n         <div class="span12">\n            <a class="addPlayerButton btn btn-danger btn-block btn-large"><i class="icon-plus"></i> <i class="icon-user"></i></a>\n         </div>\n      </div>\n   </div>\n   <div class="span2">\n      <div class="row-fluid">\n         <div class="span12">\n            <a class="startClockButton btn btn-block btn-large"><i class="<%= \n            state == \'paused\' ? \'icon-play\' : state == \'active\' ? \'icon-pause\' : \'icon-refresh\' %>"></i><% /*-_.capitalize(state) */%></a>\n         </div>\n      </div>\n      <div class="row-fluid">\n         <div class="span12">\n            <a class="gameSettingsButton btn btn-warning btn-block btn-large"><i class="icon-cog"></i></a>\n         </div>\n      </div>\n   </div>\n   <div class="span8">\n      <a class="nextPlayerButton btn btn-primary btn-large btn-block"><i class="icon-arrow-right"></i></a>\n   </div>\n</div>\n';});
 
-define('text!templates/game-settings.html',[],function () { return '<% if (public) { %>\n<a class="btn btn-large btn-block btn-info disabled">\n   <i class="icon-group"></i> Join Code: <strong><%-join_code%></strong>\n</a>\n<% } else { %>\n<a class="makePublicButton btn btn-info btn-block btn-large">\n   <i class="icon-group"></i> Make Game Public\n</a>\n<% } %>\n<a class="resetClockButton btn btn-danger btn-block btn-large">\n   <i class="icon-refresh"></i> Reset Clock</i>\n</a>\n<a class="returnToMainMenuButton btn btn-large btn-warning btn-block">\n   <i class="icon-ban-circle"></i> Quit Game\n</a>\n<a class="btn btn-large btn-block btn-success" data-dismiss="modal">\n   <i class="icon-reply"></i> Return to Game\n</a>\n';});
+define('text!templates/game-settings.html',[],function () { return '<% if (public) { %>\n<a class="btn btn-large btn-block btn-info disabled">\n   <i class="icon-group"></i> Join Code: <strong><%-join_code%></strong>\n</a>\n<% } else { %>\n<a class="makePublicButton btn btn-info btn-block btn-large">\n   <i class="icon-group"></i> Make Public\n</a>\n<% } %>\n<a class="resetClockButton btn btn-danger btn-block btn-large">\n   <i class="icon-refresh"></i> Reset Clock</i>\n</a>\n<a class="returnToMainMenuButton btn btn-large btn-warning btn-block">\n   <i class="icon-ban-circle"></i> Quit Game\n</a>\n<a class="btn btn-large btn-block btn-success" data-dismiss="modal">\n   <i class="icon-reply"></i> Return to Game\n</a>\n';});
 
 define('views/game-view',['jquery', 'underscore', 'backbone',
 'views/edit-player-view',
@@ -2110,7 +2120,10 @@ _Game, _NewPlayer, _GameControls, _GameSettings, Custom) {
             var model = this.model;
             this.model.set({'public': true}, {silent: true}).save(null, {
                success: function() {
-                  bootbox.alert("Have friends join with code: " + model.get('join_code'));
+                  this.$('#gameSettingsFormHolder').modal('hide');
+                  bootbox.alert("Have friends join with code: " + model.get('join_code') +
+                   '<br>Or send a direct link:<br><a href="' + window.location.href +
+                   '">' + window.location.href + '</a>');
                }
             });
          }, 'click .resetClockButton': function(ev) {

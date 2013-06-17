@@ -4,6 +4,11 @@ function($, _, Backbone, Custom) {
       urlRoot: '/api/games'
       , idAttribute: 'join_code'
       , longPolling: false
+      , initialize: function() {
+         // Not throttling successCallback. Might later, I guess.
+         this.successCallback = _.bind(this.onFetch, this);
+         this.errorCallback = _.throttle(_.bind(this.onFetch, this), 5000);
+      }
       , getActivePlayerKey: function() {
          var players = this.get('players');
          var activePlayerKey = null;
@@ -153,7 +158,12 @@ function($, _, Backbone, Custom) {
          this.executeLongPolling();
       }, executeLongPolling: function() {
          if (this.longPolling) {
-            this.fetch({success: _.bind(this.onFetch, this)});
+            _.delay(_.bind(function() {
+               this.fetch({
+                  success: this.successCallback
+                  , error: this.errorCallback
+               });
+            }, this), 100);
          }
       }, stopLongPolling: function() {
          this.longPolling = false;

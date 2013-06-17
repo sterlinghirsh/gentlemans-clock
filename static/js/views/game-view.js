@@ -146,7 +146,10 @@ _Game, _NewPlayer, _GameControls, _GameSettings, Custom) {
             var model = this.model;
             this.model.set({'public': true}, {silent: true}).save(null, {
                success: function() {
-                  bootbox.alert("Have friends join with code: " + model.get('join_code'));
+                  this.$('#gameSettingsFormHolder').modal('hide');
+                  bootbox.alert("Have friends join with code: " + model.get('join_code') +
+                   '<br>Or send a direct link:<br><a href="' + window.location.href +
+                   '">' + window.location.href + '</a>');
                }
             });
          }, 'click .resetClockButton': function(ev) {
