@@ -48,38 +48,88 @@ _Game, _NewPlayer, _GameControls, _GameSettings, Custom) {
             this.model.startLongPolling();
          }
       }
+      , updateTimes: function() {
+         var that = this;
+         this.$('li.player').each(function() {
+            var guid = $(this).data('guid');
+            var player = that.model.getPlayerByGuid(guid);
+            if (player === null) {
+               console.error("Updating time on null player: " + guid);
+               return;
+            }
+
+            var playerTimeLeft = that.model.getPlayerTimeLeft(player);
+            var gameTimeString = Custom.displayTime(playerTimeLeft.gameTimeLeft);
+            var turnTimeString = Custom.displayTime(playerTimeLeft.turnTimeLeft);
+
+            $(this).find('.playerGameTime').text(gameTimeString);
+            if (player.state == 'waiting') {
+               $(this).find('.playerTurnTimeHolder').addClass('hidden');
+            } else {
+               $(this).find('.playerTurnTimeHolder').removeClass('hidden').
+               find('.playerTurnTime').text(turnTimeString);
+            }
+         });
+      }
+      , updatePlayerStates: function() {
+         var that = this;
+         this.$('li.player').each(function() {
+            var guid = $(this).data('guid');
+            var player = that.model.getPlayerByGuid(guid);
+            if (player === null) {
+               console.error("Updating time on null player: " + guid);
+               return;
+            }
+
+            if (player.state == 'waiting') {
+               $(this).removeClass('playing').addClass('waiting');
+            } else {
+               $(this).removeClass('waiting').addClass('playing');
+            }
+         });
+      }
+      , updatePlayerNamesAndColors: function() {
+         var that = this;
+         var validColorsString = Custom.validColors.join(' ');
+         this.$('li.player').each(function() {
+            var guid = $(this).data('guid');
+            var player = that.model.getPlayerByGuid(guid);
+            if (player === null) {
+               console.error("Updating time on null player: " + guid);
+               return;
+            }
+
+            $(this).removeClass(validColorsString).addClass(player.color).
+            find('playerName').text(player.name);
+         });
+      }
       , render: function() {
          if (this.model === null) {
             return this;
          }
+         var that = this;
          var game = this.model.toJSON();
          game.gameTimeString = Custom.displayTime(game.time_per_game);
          game.turnTimeString = Custom.displayTime(game.time_per_turn);
          var now = new Date;
          game.players = _.map(game.players, function(player) {
-            var gameTimeLeft  = game.time_per_game - player.game_time_used;
-            var turnTimeLeft = game.time_per_turn - player.turn_time_used;
-            if (player.date_turn_started !== null) {
-               var timeDiff = Math.floor((now - serverToLocal(player.date_turn_started)) / 1000);
-               turnTimeLeft -= timeDiff;
-               turnTimeLeft = _.min([game.time_per_turn, turnTimeLeft]);
-               if (turnTimeLeft < 0) {
-                  gameTimeLeft += turnTimeLeft;
-                  turnTimeLeft = 0;
-               }
-            };
-            player.gameTimeString = Custom.displayTime(gameTimeLeft);
-            player.turnTimeString = Custom.displayTime(turnTimeLeft);
+            var playerTimeLeft = that.model.getPlayerTimeLeft(player);
+            player.gameTimeString = Custom.displayTime(playerTimeLeft.gameTimeLeft);
+            player.turnTimeString = Custom.displayTime(playerTimeLeft.turnTimeLeft);
             return player;
          });
 
          var newNumPlayers = game.players.length;
 
-         this.$('#gameDisplay').html(this.template(game));
 
          if (newNumPlayers != this.lastNumPlayers) {
+            this.$('#gameDisplay').html(this.template(game));
             this.lastNumPlayers = newNumPlayers;
             this.$('#newPlayerForm').html(this.newPlayerTemplate(game));
+         } else {
+            this.updatePlayerNamesAndColors();
+            this.updatePlayerStates();
+            this.updateTimes();
          }
 
          if (game.state != this.lastState) {
@@ -181,11 +231,11 @@ _Game, _NewPlayer, _GameControls, _GameSettings, Custom) {
          }
          , 'click li': function(ev) {
             var li = $(ev.currentTarget);
-            var playerid = li.data('playerid');
+            var guid = li.data('guid');
             var players = this.model.get('players');
             var player = null;
             for (var i = 0; i < players.length; ++i) {
-               if (players[i].guid == playerid) {
+               if (players[i].guid == guid) {
                   player = players[i];
                   break;
                }

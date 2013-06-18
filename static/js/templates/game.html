@@ -1,11 +1,12 @@
 <ul class="players">
    <% for (var i = 0; i < players.length; ++i) { %>
-      <li data-playerid="<%-players[i].guid%>" class="<%-players[i].state%> <%-players[i].color%>">
-         <%-players[i].name%>
-         [<%-players[i].gameTimeString%><%
-         if (players[i].state == 'playing' && time_per_turn > 0) {
-            %> + <%-players[i].turnTimeString%><% 
-         } %>]
+      <li data-guid="<%-players[i].guid%>" class="player <%-players[i].state%> <%-players[i].color%>">
+         <span class="playerName"><%-players[i].name%></span>
+         <span class="playerTime">
+            [<span class="playerGameTime"><%-players[i].gameTimeString%></span><span
+               class="playerTurnTimeHolder <%-players[i].state == 'waiting' ? 'hidden' : ''%>"> + 
+               <span class="playerTurnTime"><%-players[i].turnTimeString%></span></span>]
+         </span>
       </li>
    <% } %>
 </ul>

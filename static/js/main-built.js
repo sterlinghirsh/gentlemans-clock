@@ -1243,7 +1243,7 @@ define('custom',['underscore'], function(_) {
          var timeString = mins + ":" + secs;
 
          if (hours > 0) {
-            timeString = hours + ":" + player.gameTimeString;
+            timeString = hours + ":" + timeString;
          }
 
          return timeString;
@@ -1292,6 +1292,32 @@ function($, _, Backbone, Custom) {
          });
 
          return activePlayerKey;
+      }
+      , getPlayerByGuid: function(guid) {
+         var players = this.get('players');
+         for (var i = 0; i < players.length; ++i) {
+            if (players[i].guid === guid) {
+               return players[i];
+            }
+         }
+         return null;
+      }
+      , getPlayerTimeLeft: function(player) {
+         var now = new Date;
+         var gameTimeLeft  = this.get('time_per_game') - player.game_time_used;
+         var turnTimeLeft = this.get('time_per_turn') - player.turn_time_used;
+         if (player.date_turn_started !== null) {
+            var timeDiff = Math.floor((now - serverToLocal(player.date_turn_started)) / 1000);
+            if (this.get('state') == 'active') {
+               turnTimeLeft -= timeDiff;
+            }
+            turnTimeLeft = _.min([this.get('time_per_turn'), turnTimeLeft]);
+            if (turnTimeLeft < 0) {
+               gameTimeLeft += turnTimeLeft;
+               turnTimeLeft = 0;
+            }
+         };
+         return {gameTimeLeft: gameTimeLeft, turnTimeLeft: turnTimeLeft};
       }
       /**
        * Start the clock, optionally specifying a player to start.
@@ -1359,7 +1385,6 @@ function($, _, Backbone, Custom) {
          var game = this;
          var players = this.get('players');
          var time_per_turn = this.get('time_per_turn');
-         console.log("paus");
          
          if (players.length == 0) {
             return this;
@@ -1964,7 +1989,7 @@ define('views/edit-player-view',['jquery', 'underscore', 'backbone', 'bootbox',
    });
 });
 
-define('text!templates/game.html',[],function () { return '<ul class="players">\n   <% for (var i = 0; i < players.length; ++i) { %>\n      <li data-playerid="<%-players[i].guid%>" class="<%-players[i].state%> <%-players[i].color%>">\n         <%-players[i].name%>\n         [<%-players[i].gameTimeString%><%\n         if (players[i].state == \'playing\' && time_per_turn > 0) {\n            %> + <%-players[i].turnTimeString%><% \n         } %>]\n      </li>\n   <% } %>\n</ul>\n';});
+define('text!templates/game.html',[],function () { return '<ul class="players">\n   <% for (var i = 0; i < players.length; ++i) { %>\n      <li data-guid="<%-players[i].guid%>" class="player <%-players[i].state%> <%-players[i].color%>">\n         <span class="playerName"><%-players[i].name%></span>\n         <span class="playerTime">\n            [<span class="playerGameTime"><%-players[i].gameTimeString%></span><span\n               class="playerTurnTimeHolder <%-players[i].state == \'waiting\' ? \'hidden\' : \'\'%>"> + \n               <span class="playerTurnTime"><%-players[i].turnTimeString%></span></span>]\n         </span>\n      </li>\n   <% } %>\n</ul>\n';});
 
 define('text!templates/new-player.html',[],function () { return '<input type="text" name="name" value="Player <%-players.length + 1%>">\n<input type="submit" value="Add Player">\n';});
 
@@ -2022,38 +2047,88 @@ _Game, _NewPlayer, _GameControls, _GameSettings, Custom) {
             this.model.startLongPolling();
          }
       }
+      , updateTimes: function() {
+         var that = this;
+         this.$('li.player').each(function() {
+            var guid = $(this).data('guid');
+            var player = that.model.getPlayerByGuid(guid);
+            if (player === null) {
+               console.error("Updating time on null player: " + guid);
+               return;
+            }
+
+            var playerTimeLeft = that.model.getPlayerTimeLeft(player);
+            var gameTimeString = Custom.displayTime(playerTimeLeft.gameTimeLeft);
+            var turnTimeString = Custom.displayTime(playerTimeLeft.turnTimeLeft);
+
+            $(this).find('.playerGameTime').text(gameTimeString);
+            if (player.state == 'waiting') {
+               $(this).find('.playerTurnTimeHolder').addClass('hidden');
+            } else {
+               $(this).find('.playerTurnTimeHolder').removeClass('hidden').
+               find('.playerTurnTime').text(turnTimeString);
+            }
+         });
+      }
+      , updatePlayerStates: function() {
+         var that = this;
+         this.$('li.player').each(function() {
+            var guid = $(this).data('guid');
+            var player = that.model.getPlayerByGuid(guid);
+            if (player === null) {
+               console.error("Updating time on null player: " + guid);
+               return;
+            }
+
+            if (player.state == 'waiting') {
+               $(this).removeClass('playing').addClass('waiting');
+            } else {
+               $(this).removeClass('waiting').addClass('playing');
+            }
+         });
+      }
+      , updatePlayerNamesAndColors: function() {
+         var that = this;
+         var validColorsString = Custom.validColors.join(' ');
+         this.$('li.player').each(function() {
+            var guid = $(this).data('guid');
+            var player = that.model.getPlayerByGuid(guid);
+            if (player === null) {
+               console.error("Updating time on null player: " + guid);
+               return;
+            }
+
+            $(this).removeClass(validColorsString).addClass(player.color).
+            find('playerName').text(player.name);
+         });
+      }
       , render: function() {
          if (this.model === null) {
             return this;
          }
+         var that = this;
          var game = this.model.toJSON();
          game.gameTimeString = Custom.displayTime(game.time_per_game);
          game.turnTimeString = Custom.displayTime(game.time_per_turn);
          var now = new Date;
          game.players = _.map(game.players, function(player) {
-            var gameTimeLeft  = game.time_per_game - player.game_time_used;
-            var turnTimeLeft = game.time_per_turn - player.turn_time_used;
-            if (player.date_turn_started !== null) {
-               var timeDiff = Math.floor((now - serverToLocal(player.date_turn_started)) / 1000);
-               turnTimeLeft -= timeDiff;
-               turnTimeLeft = _.min([game.time_per_turn, turnTimeLeft]);
-               if (turnTimeLeft < 0) {
-                  gameTimeLeft += turnTimeLeft;
-                  turnTimeLeft = 0;
-               }
-            };
-            player.gameTimeString = Custom.displayTime(gameTimeLeft);
-            player.turnTimeString = Custom.displayTime(turnTimeLeft);
+            var playerTimeLeft = that.model.getPlayerTimeLeft(player);
+            player.gameTimeString = Custom.displayTime(playerTimeLeft.gameTimeLeft);
+            player.turnTimeString = Custom.displayTime(playerTimeLeft.turnTimeLeft);
             return player;
          });
 
          var newNumPlayers = game.players.length;
 
-         this.$('#gameDisplay').html(this.template(game));
 
          if (newNumPlayers != this.lastNumPlayers) {
+            this.$('#gameDisplay').html(this.template(game));
             this.lastNumPlayers = newNumPlayers;
             this.$('#newPlayerForm').html(this.newPlayerTemplate(game));
+         } else {
+            this.updatePlayerNamesAndColors();
+            this.updatePlayerStates();
+            this.updateTimes();
          }
 
          if (game.state != this.lastState) {
@@ -2155,11 +2230,11 @@ _Game, _NewPlayer, _GameControls, _GameSettings, Custom) {
          }
          , 'click li': function(ev) {
             var li = $(ev.currentTarget);
-            var playerid = li.data('playerid');
+            var guid = li.data('guid');
             var players = this.model.get('players');
             var player = null;
             for (var i = 0; i < players.length; ++i) {
-               if (players[i].guid == playerid) {
+               if (players[i].guid == guid) {
                   player = players[i];
                   break;
                }

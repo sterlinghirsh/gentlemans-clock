@@ -79,10 +79,10 @@ body {
   border-radius: 3px;
   list-style-type: none;
   margin-bottom: 5px;
-  -webkit-transition: all 2s ease-out;
-  -moz-transition: all 2s ease-out;
-  -o-transition: all 2s ease-out;
-  transition: all 2s ease-out;
+  -webkit-transition: all 0.2s ease-out;
+  -moz-transition: all 0.2s ease-out;
+  -o-transition: all 0.2s ease-out;
+  transition: all 0.2s ease-out;
   font-weight: bold;
 }
 .players li.playing {

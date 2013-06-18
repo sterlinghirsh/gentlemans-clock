@@ -18,7 +18,7 @@ define(['underscore'], function(_) {
          var timeString = mins + ":" + secs;
 
          if (hours > 0) {
-            timeString = hours + ":" + player.gameTimeString;
+            timeString = hours + ":" + timeString;
          }
 
          return timeString;

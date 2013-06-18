@@ -21,6 +21,32 @@ function($, _, Backbone, Custom) {
 
          return activePlayerKey;
       }
+      , getPlayerByGuid: function(guid) {
+         var players = this.get('players');
+         for (var i = 0; i < players.length; ++i) {
+            if (players[i].guid === guid) {
+               return players[i];
+            }
+         }
+         return null;
+      }
+      , getPlayerTimeLeft: function(player) {
+         var now = new Date;
+         var gameTimeLeft  = this.get('time_per_game') - player.game_time_used;
+         var turnTimeLeft = this.get('time_per_turn') - player.turn_time_used;
+         if (player.date_turn_started !== null) {
+            var timeDiff = Math.floor((now - serverToLocal(player.date_turn_started)) / 1000);
+            if (this.get('state') == 'active') {
+               turnTimeLeft -= timeDiff;
+            }
+            turnTimeLeft = _.min([this.get('time_per_turn'), turnTimeLeft]);
+            if (turnTimeLeft < 0) {
+               gameTimeLeft += turnTimeLeft;
+               turnTimeLeft = 0;
+            }
+         };
+         return {gameTimeLeft: gameTimeLeft, turnTimeLeft: turnTimeLeft};
+      }
       /**
        * Start the clock, optionally specifying a player to start.
        */
@@ -87,7 +113,6 @@ function($, _, Backbone, Custom) {
          var game = this;
          var players = this.get('players');
          var time_per_turn = this.get('time_per_turn');
-         console.log("paus");
          
          if (players.length == 0) {
             return this;
