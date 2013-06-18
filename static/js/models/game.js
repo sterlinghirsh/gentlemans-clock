@@ -21,6 +21,14 @@ function($, _, Backbone, Custom) {
 
          return activePlayerKey;
       }
+      , getPlayerGuidString: function() {
+         var players = this.get('players');
+         var str = '';
+         for (var i = 0; i < players.length; ++i) {
+            str += players[i].guid;
+         }
+         return str;
+      }
       , getPlayerByGuid: function(guid) {
          var players = this.get('players');
          for (var i = 0; i < players.length; ++i) {

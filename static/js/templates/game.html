@@ -3,8 +3,8 @@
       <li data-guid="<%-players[i].guid%>" class="player <%-players[i].state%> <%-players[i].color%>">
          <span class="playerName"><%-players[i].name%></span>
          <span class="playerTime">
-            [<span class="playerGameTime"><%-players[i].gameTimeString%></span><span
-               class="playerTurnTimeHolder <%-players[i].state == 'waiting' ? 'hidden' : ''%>"> + 
+            [<span class="playerGameTime"><%-players[i].gameTimeString%></span><span<%
+               %> class="playerTurnTimeHolder<%-players[i].state == 'waiting' ? ' hidden' : ''%>"> + 
                <span class="playerTurnTime"><%-players[i].turnTimeString%></span></span>]
          </span>
       </li>

@@ -1293,6 +1293,14 @@ function($, _, Backbone, Custom) {
 
          return activePlayerKey;
       }
+      , getPlayerGuidString: function() {
+         var players = this.get('players');
+         var str = '';
+         for (var i = 0; i < players.length; ++i) {
+            str += players[i].guid;
+         }
+         return str;
+      }
       , getPlayerByGuid: function(guid) {
          var players = this.get('players');
          for (var i = 0; i < players.length; ++i) {
@@ -1989,9 +1997,7 @@ define('views/edit-player-view',['jquery', 'underscore', 'backbone', 'bootbox',
    });
 });
 
-define('text!templates/game.html',[],function () { return '<ul class="players">\n   <% for (var i = 0; i < players.length; ++i) { %>\n      <li data-guid="<%-players[i].guid%>" class="player <%-players[i].state%> <%-players[i].color%>">\n         <span class="playerName"><%-players[i].name%></span>\n         <span class="playerTime">\n            [<span class="playerGameTime"><%-players[i].gameTimeString%></span><span\n               class="playerTurnTimeHolder <%-players[i].state == \'waiting\' ? \'hidden\' : \'\'%>"> + \n               <span class="playerTurnTime"><%-players[i].turnTimeString%></span></span>]\n         </span>\n      </li>\n   <% } %>\n</ul>\n';});
-
-define('text!templates/new-player.html',[],function () { return '<input type="text" name="name" value="Player <%-players.length + 1%>">\n<input type="submit" value="Add Player">\n';});
+define('text!templates/game.html',[],function () { return '<ul class="players">\n   <% for (var i = 0; i < players.length; ++i) { %>\n      <li data-guid="<%-players[i].guid%>" class="player <%-players[i].state%> <%-players[i].color%>">\n         <span class="playerName"><%-players[i].name%></span>\n         <span class="playerTime">\n            [<span class="playerGameTime"><%-players[i].gameTimeString%></span><span<%\n               %> class="playerTurnTimeHolder<%-players[i].state == \'waiting\' ? \' hidden\' : \'\'%>"> + \n               <span class="playerTurnTime"><%-players[i].turnTimeString%></span></span>]\n         </span>\n      </li>\n   <% } %>\n</ul>\n';});
 
 define('text!templates/game-controls.html',[],function () { return '<div class="gameControls row-fluid">\n   <div class="span2">\n      <div class="row-fluid">\n         <div class="span12">\n            <a class="prevPlayerButton btn btn-inverse btn-block btn-large"><i class="icon-arrow-left"></i></a>\n         </div>\n      </div>\n      <div class="row-fluid">\n         <div class="span12">\n            <a class="addPlayerButton btn btn-danger btn-block btn-large"><i class="icon-plus"></i> <i class="icon-user"></i></a>\n         </div>\n      </div>\n   </div>\n   <div class="span2">\n      <div class="row-fluid">\n         <div class="span12">\n            <a class="startClockButton btn btn-block btn-large"><i class="<%= \n            state == \'paused\' ? \'icon-play\' : state == \'active\' ? \'icon-pause\' : \'icon-refresh\' %>"></i><% /*-_.capitalize(state) */%></a>\n         </div>\n      </div>\n      <div class="row-fluid">\n         <div class="span12">\n            <a class="gameSettingsButton btn btn-warning btn-block btn-large"><i class="icon-cog"></i></a>\n         </div>\n      </div>\n   </div>\n   <div class="span8">\n      <a class="nextPlayerButton btn btn-primary btn-large btn-block"><i class="icon-arrow-right"></i></a>\n   </div>\n</div>\n';});
 
@@ -1999,18 +2005,18 @@ define('text!templates/game-settings.html',[],function () { return '<% if (publi
 
 define('views/game-view',['jquery', 'underscore', 'backbone',
 'views/edit-player-view',
-'text!templates/game.html', 'text!templates/new-player.html',
+'text!templates/game.html',
 'text!templates/game-controls.html', 
 'text!templates/game-settings.html', 'custom']
 , function($, _, Backbone, 
 EditPlayerView,
-_Game, _NewPlayer, _GameControls, _GameSettings, Custom) {
+_Game, _GameControls, _GameSettings, Custom) {
    return Backbone.View.extend({
       template: _.template(_Game)
       , controlsTemplate: _.template(_GameControls)
-      , newPlayerTemplate: _.template(_NewPlayer)
       , settingsTemplate: _.template(_GameSettings)
       , lastNumPlayers: -1
+      , lastGuidString: ''
       , initialize: function() {
          if (this.model !== null) {
             this.model.on('change', this.render, this);
@@ -2042,6 +2048,7 @@ _Game, _NewPlayer, _GameControls, _GameSettings, Custom) {
             }
          }, this);
          this.lastNumPlayers = -1;
+         this.lastGuidString = '';
          this.render();
          if (this.model.get('public')) {
             this.model.startLongPolling();
@@ -2099,7 +2106,7 @@ _Game, _NewPlayer, _GameControls, _GameSettings, Custom) {
             }
 
             $(this).removeClass(validColorsString).addClass(player.color).
-            find('playerName').text(player.name);
+            find('.playerName').text(player.name);
          });
       }
       , render: function() {
@@ -2118,13 +2125,13 @@ _Game, _NewPlayer, _GameControls, _GameSettings, Custom) {
             return player;
          });
 
+         
          var newNumPlayers = game.players.length;
+         var newGuidString = this.model.getPlayerGuidString();
 
-
-         if (newNumPlayers != this.lastNumPlayers) {
+         if (newGuidString != this.lastGuidString) {
             this.$('#gameDisplay').html(this.template(game));
-            this.lastNumPlayers = newNumPlayers;
-            this.$('#newPlayerForm').html(this.newPlayerTemplate(game));
+            this.lastGuidString = newGuidString;
          } else {
             this.updatePlayerNamesAndColors();
             this.updatePlayerStates();
@@ -2132,22 +2139,14 @@ _Game, _NewPlayer, _GameControls, _GameSettings, Custom) {
          }
 
          if (game.state != this.lastState) {
+            console.log("changing state");
             this.lastState = game.state;
             this.$('.gameControlsHolder').html(this.controlsTemplate(game));
          }
          return this;
       }
       , events: {
-         'submit #newPlayerForm': function(ev) {
-            ev.preventDefault();
-            var form = $(ev.currentTarget);
-            var data = form.serializeObject();
-            var players = this.model.get('players');
-            players.push(data);
-            this.model.set('players', players);
-            this.model.save();
-         }
-         , 'click .addPlayerButton': function(ev) {
+         'click .addPlayerButton': function(ev) {
             ev.preventDefault();
             this.model.addNewPlayer();
             if (this.model.get('public')) {

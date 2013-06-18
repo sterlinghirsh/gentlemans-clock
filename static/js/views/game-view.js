@@ -1,17 +1,17 @@
 define(['jquery', 'underscore', 'backbone',
 'views/edit-player-view',
-'text!templates/game.html', 'text!templates/new-player.html',
+'text!templates/game.html',
 'text!templates/game-controls.html', 
 'text!templates/game-settings.html', 'custom']
 , function($, _, Backbone, 
 EditPlayerView,
-_Game, _NewPlayer, _GameControls, _GameSettings, Custom) {
+_Game, _GameControls, _GameSettings, Custom) {
    return Backbone.View.extend({
       template: _.template(_Game)
       , controlsTemplate: _.template(_GameControls)
-      , newPlayerTemplate: _.template(_NewPlayer)
       , settingsTemplate: _.template(_GameSettings)
       , lastNumPlayers: -1
+      , lastGuidString: ''
       , initialize: function() {
          if (this.model !== null) {
             this.model.on('change', this.render, this);
@@ -43,6 +43,7 @@ _Game, _NewPlayer, _GameControls, _GameSettings, Custom) {
             }
          }, this);
          this.lastNumPlayers = -1;
+         this.lastGuidString = '';
          this.render();
          if (this.model.get('public')) {
             this.model.startLongPolling();
@@ -100,7 +101,7 @@ _Game, _NewPlayer, _GameControls, _GameSettings, Custom) {
             }
 
             $(this).removeClass(validColorsString).addClass(player.color).
-            find('playerName').text(player.name);
+            find('.playerName').text(player.name);
          });
       }
       , render: function() {
@@ -119,13 +120,13 @@ _Game, _NewPlayer, _GameControls, _GameSettings, Custom) {
             return player;
          });
 
+         
          var newNumPlayers = game.players.length;
+         var newGuidString = this.model.getPlayerGuidString();
 
-
-         if (newNumPlayers != this.lastNumPlayers) {
+         if (newGuidString != this.lastGuidString) {
             this.$('#gameDisplay').html(this.template(game));
-            this.lastNumPlayers = newNumPlayers;
-            this.$('#newPlayerForm').html(this.newPlayerTemplate(game));
+            this.lastGuidString = newGuidString;
          } else {
             this.updatePlayerNamesAndColors();
             this.updatePlayerStates();
@@ -133,22 +134,14 @@ _Game, _NewPlayer, _GameControls, _GameSettings, Custom) {
          }
 
          if (game.state != this.lastState) {
+            console.log("changing state");
             this.lastState = game.state;
             this.$('.gameControlsHolder').html(this.controlsTemplate(game));
          }
          return this;
       }
       , events: {
-         'submit #newPlayerForm': function(ev) {
-            ev.preventDefault();
-            var form = $(ev.currentTarget);
-            var data = form.serializeObject();
-            var players = this.model.get('players');
-            players.push(data);
-            this.model.set('players', players);
-            this.model.save();
-         }
-         , 'click .addPlayerButton': function(ev) {
+         'click .addPlayerButton': function(ev) {
             ev.preventDefault();
             this.model.addNewPlayer();
             if (this.model.get('public')) {

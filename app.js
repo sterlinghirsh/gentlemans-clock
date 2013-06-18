@@ -134,7 +134,9 @@ db.once('open', function callback() {
             } else if (player.game_time_used == 0 &&
              player.turn_time_used == 0 &&
              player.date_turn_started === null &&
-             player.state == 'waiting') {
+             player.state == 'waiting' &&
+             game.state == 'paused' &&
+             game.curret_turn == 1) {
                // We're resetting the player, so don't do anything fancy.
                resettingGame = true;
             } else if (player.date_turn_started !== null &&
