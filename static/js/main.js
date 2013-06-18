@@ -40,7 +40,8 @@ requirejs.config({
    }
 });
 require(['underscore', 'underscore-string',
-'client', 'jquery-serializeObject', 'date-shim'], function (_, _s, client) {
+'client', 
+'jquery-serializeObject', 'date-shim'], function (_, _s, client) {
    _.mixin(_.string.exports());
    client.initialize();
 });

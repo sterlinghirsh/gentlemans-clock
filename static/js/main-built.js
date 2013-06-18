@@ -1429,7 +1429,8 @@ function($, _, Backbone, Custom) {
       , resetClock: function() {
          var players = this.get('players');
          _.each(players, function(player) {
-            player.game_time_used = player.turn_time_used = 0;
+            player.game_time_used = 0;
+            player.turn_time_used = 0;
             player.date_turn_started = null;
             player.state = 'waiting';
          });
@@ -1918,7 +1919,7 @@ define('text',['module'], function (module) {
     return text;
 });
 
-define('text!templates/edit-player.html',[],function () { return '<fieldset>\n   <legend>Edit Player (<%-name%>)</legend>\n   <div class="row-fluid">\n      <div class="span6">\n         <label for="playerName">Name</label>\n         <input type="text" value="<%-name%>" class="input-block-level" maxlength="16"\n          id="playerName" name="name">\n      </div>\n      <div class="span6">\n         <label for="playerColor">Color</label>\n         <select name="color" id="playerColor" class="input-block-level">\n            <% for (var i = 0; i < validColors.length; ++i) { %>\n            <option class="<%-validColors[i]%>" value="<%-validColors[i]%>"\n            <%= color == validColors[i] ? \'selected\' : \'\' %>>\n               <%-_.capitalize(validColors[i])%>\n            </option>\n            <% } %>\n         </select>\n      </div>\n   </div>\n   <div class="form-actions">\n      <a class="btn btn-danger btn-large pull-left" id="removePlayerButton"><i class="icon-trash"></i></a>\n      <input type="submit" value="Update Player" class="btn btn-success btn-large pull-right">\n   </div>\n</fieldset>\n';});
+define('text!templates/edit-player.html',[],function () { return '<fieldset>\n   <legend><%-name%></legend>\n   <div class="row-fluid">\n      <div class="span6">\n         <label for="playerName">Name</label>\n         <input type="text" value="<%-name%>" class="input-block-level" maxlength="16"\n          id="playerName" name="name">\n      </div>\n      <div class="span6">\n         <label for="playerColor">Color</label>\n         <select name="color" id="playerColor" class="input-block-level">\n            <% for (var i = 0; i < validColors.length; ++i) { %>\n            <option class="<%-validColors[i]%>" value="<%-validColors[i]%>"\n            <%= color == validColors[i] ? \'selected\' : \'\' %>>\n               <%-_.capitalize(validColors[i])%>\n            </option>\n            <% } %>\n         </select>\n      </div>\n   </div>\n   <div class="row-fluid">\n      <div class="span3">\n         <a class="btn btn-danger btn-large btn-block" id="removePlayerButton"><i class="icon-trash"></i></a>\n      </div>\n      <div class="span9">\n         <input type="submit" value="Update Player" class="btn btn-success btn-large btn-block">\n      </div>\n   </div>\n</fieldset>\n';});
 
 define('views/edit-player-view',['jquery', 'underscore', 'backbone', 'bootbox',
 'custom', 
@@ -2060,7 +2061,6 @@ _Game, _GameControls, _GameSettings, Custom) {
             var guid = $(this).data('guid');
             var player = that.model.getPlayerByGuid(guid);
             if (player === null) {
-               console.error("Updating time on null player: " + guid);
                return;
             }
 
@@ -2083,7 +2083,6 @@ _Game, _GameControls, _GameSettings, Custom) {
             var guid = $(this).data('guid');
             var player = that.model.getPlayerByGuid(guid);
             if (player === null) {
-               console.error("Updating time on null player: " + guid);
                return;
             }
 
@@ -2101,7 +2100,6 @@ _Game, _GameControls, _GameSettings, Custom) {
             var guid = $(this).data('guid');
             var player = that.model.getPlayerByGuid(guid);
             if (player === null) {
-               console.error("Updating time on null player: " + guid);
                return;
             }
 
@@ -2130,7 +2128,7 @@ _Game, _GameControls, _GameSettings, Custom) {
          var newGuidString = this.model.getPlayerGuidString();
 
          if (newGuidString != this.lastGuidString) {
-            this.$('#gameDisplay').html(this.template(game));
+            this.$('.gameDisplay').html(this.template(game));
             this.lastGuidString = newGuidString;
          } else {
             this.updatePlayerNamesAndColors();
@@ -2139,7 +2137,6 @@ _Game, _GameControls, _GameSettings, Custom) {
          }
 
          if (game.state != this.lastState) {
-            console.log("changing state");
             this.lastState = game.state;
             this.$('.gameControlsHolder').html(this.controlsTemplate(game));
          }
@@ -3075,7 +3072,8 @@ requirejs.config({
    }
 });
 require(['underscore', 'underscore-string',
-'client', 'jquery-serializeObject', 'date-shim'], function (_, _s, client) {
+'client', 
+'jquery-serializeObject', 'date-shim'], function (_, _s, client) {
    _.mixin(_.string.exports());
    client.initialize();
 });

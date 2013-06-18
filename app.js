@@ -136,7 +136,7 @@ db.once('open', function callback() {
              player.date_turn_started === null &&
              player.state == 'waiting' &&
              game.state == 'paused' &&
-             game.curret_turn == 1) {
+             game.current_turn == 1) {
                // We're resetting the player, so don't do anything fancy.
                resettingGame = true;
             } else if (player.date_turn_started !== null &&
@@ -169,7 +169,7 @@ db.once('open', function callback() {
             return player;
          });
 
-         if (resettingGame || gameData.players.length === 0) {
+         if (gameData.players.length === 0) {
             gameData.current_turn = 1;
             gameData.state = 'paused';
          }
@@ -204,7 +204,6 @@ db.once('open', function callback() {
                      responses.splice(index, 1);
                   }
                });
-               console.log(responses.length + " responses sent.");
             });
          }
       });

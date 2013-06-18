@@ -55,7 +55,6 @@ _Game, _GameControls, _GameSettings, Custom) {
             var guid = $(this).data('guid');
             var player = that.model.getPlayerByGuid(guid);
             if (player === null) {
-               console.error("Updating time on null player: " + guid);
                return;
             }
 
@@ -78,7 +77,6 @@ _Game, _GameControls, _GameSettings, Custom) {
             var guid = $(this).data('guid');
             var player = that.model.getPlayerByGuid(guid);
             if (player === null) {
-               console.error("Updating time on null player: " + guid);
                return;
             }
 
@@ -96,7 +94,6 @@ _Game, _GameControls, _GameSettings, Custom) {
             var guid = $(this).data('guid');
             var player = that.model.getPlayerByGuid(guid);
             if (player === null) {
-               console.error("Updating time on null player: " + guid);
                return;
             }
 
@@ -125,7 +122,7 @@ _Game, _GameControls, _GameSettings, Custom) {
          var newGuidString = this.model.getPlayerGuidString();
 
          if (newGuidString != this.lastGuidString) {
-            this.$('#gameDisplay').html(this.template(game));
+            this.$('.gameDisplay').html(this.template(game));
             this.lastGuidString = newGuidString;
          } else {
             this.updatePlayerNamesAndColors();
@@ -134,7 +131,6 @@ _Game, _GameControls, _GameSettings, Custom) {
          }
 
          if (game.state != this.lastState) {
-            console.log("changing state");
             this.lastState = game.state;
             this.$('.gameControlsHolder').html(this.controlsTemplate(game));
          }

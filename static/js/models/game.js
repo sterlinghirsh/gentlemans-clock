@@ -157,7 +157,8 @@ function($, _, Backbone, Custom) {
       , resetClock: function() {
          var players = this.get('players');
          _.each(players, function(player) {
-            player.game_time_used = player.turn_time_used = 0;
+            player.game_time_used = 0;
+            player.turn_time_used = 0;
             player.date_turn_started = null;
             player.state = 'waiting';
          });

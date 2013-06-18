@@ -1,5 +1,5 @@
 <fieldset>
-   <legend>Edit Player (<%-name%>)</legend>
+   <legend><%-name%></legend>
    <div class="row-fluid">
       <div class="span6">
          <label for="playerName">Name</label>
@@ -18,8 +18,12 @@
          </select>
       </div>
    </div>
-   <div class="form-actions">
-      <a class="btn btn-danger btn-large pull-left" id="removePlayerButton"><i class="icon-trash"></i></a>
-      <input type="submit" value="Update Player" class="btn btn-success btn-large pull-right">
+   <div class="row-fluid">
+      <div class="span3">
+         <a class="btn btn-danger btn-large btn-block" id="removePlayerButton"><i class="icon-trash"></i></a>
+      </div>
+      <div class="span9">
+         <input type="submit" value="Update Player" class="btn btn-success btn-large btn-block">
+      </div>
    </div>
 </fieldset>
