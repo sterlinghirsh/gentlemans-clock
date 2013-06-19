@@ -46,5 +46,5 @@
    include: ['main'],
    wrap: true,
    insertRequire: ['main']
-   , optimize: 'none'
+//   , optimize: 'none'
 })

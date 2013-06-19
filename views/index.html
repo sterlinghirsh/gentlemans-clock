@@ -30,12 +30,18 @@
             </div>
             <div class="row-fluid">
                <div class="span12">
-                     <a class="btn btn-primary startGame" href="#startGame">Start</a>
+                  <a class="btn btn-primary startGame" href="#startGame">
+                     <i class="icon-time"></i>
+                     Start
+                  </a>
                </div>
             </div>
             <div class="row-fluid">
                <div class="span12">
-                  <a class="btn btn-info joinGame" href="#joinGame">Join</a>
+                  <a class="btn btn-info joinGame" href="#joinGame">
+                     <i class="icon-group"></i>
+                     Join
+                  </a>
                </div>
             </div>
             <div class="row-fluid">
@@ -85,13 +91,17 @@
          <div id="joinGameView" class="hidden">
             <form id="joinGameForm" class="form-inline">
                <fieldset>
-                  <h3>Join Game</h3>
-                  <label for="joinCodeInput">Enter Join Code:</label>
-                  <input type="text" name="joinCode" id="joinCodeInput" class="input-small" placeholder="Join Code">
-                  <input type="submit" class="btn btn-success" value="Join">
-                  <div class="row-fluid">
+                  <h3>Enter Join Code</h3>
+                  <div class="input-prepend input-append">
+                     <input type="text" name="joinCode" id="joinCodeInput" class="input-small" placeholder="Join Code" maxlength="5">
+                     <button class="btn btn-success btn-large">
+                        <i class="icon-group"></i>
+                        Join
+                     </button>
+                  </div>
+                  <div class="row-fluid joinCancelHolder">
                      <div class="span12">
-                        <a href="#" class="btn btn-info">Cancel</a>
+                        <a href="#" class="btn btn-info btn-large"><i class="icon-reply"></i> Cancel</a>
                      </div>
                   </div>
                </fieldset>
@@ -144,10 +154,18 @@
                   </div>
                   <div class="row-fluid">
                      <div class="span3">
-                        <a class="btn btn-warning btn-block btn-large" href="#">Cancel</a>
+                        <a class="btn btn-warning btn-block btn-large" href="#">
+                           <i class="icon-reply"></i>
+                           <span>
+                              <span class="hidden-phone">Cancel</span>
+                           </span>
+                        </a>
                      </div>
                      <div class="span9">
-                        <input type="submit" class="btn btn-success btn-block btn-large" value="Create game!">
+                        <button class="btn btn-success btn-block btn-large">
+                           <i class="icon-arrow-right"></i>
+                           Create game!
+                        </button>
                      </div>
                   </div>
                </fieldset>

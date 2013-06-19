@@ -80,7 +80,11 @@ MainMenuView) {
          $('#joinGameForm').submit(function(ev) {
             ev.preventDefault();
             var join_code = $('#joinCodeInput').val();
-            app_router.navigate('/game/' + join_code, {trigger: true});
+            if (join_code.length == 5) {
+               app_router.navigate('/game/' + join_code, {trigger: true});
+            } else {
+               bootbox.alert("Join codes must be 5 characters.");
+            }
          });
 
          /*
