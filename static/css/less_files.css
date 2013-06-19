@@ -188,3 +188,6 @@ body {
   height: 34px;
   width: 90px;
 }
+.container-fluid {
+  padding: 5px;
+}
