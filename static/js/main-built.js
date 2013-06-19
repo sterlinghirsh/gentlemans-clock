@@ -2184,8 +2184,10 @@ _Game, _GameControls, _GameSettings, Custom) {
          }
          var that = this;
          var game = this.model.toJSON();
+         /*
          game.gameTimeString = Custom.displayTime(game.time_per_game);
          game.turnTimeString = Custom.displayTime(game.time_per_turn);
+         */
          var now = new Date;
          game.players = _.map(game.players, function(player) {
             var playerTimeLeft = that.model.getPlayerTimeLeft(player);
@@ -2286,7 +2288,7 @@ _Game, _GameControls, _GameSettings, Custom) {
                if (this.model.get('public')) {
                   this.model.save();
                } else {
-                  this.model.render();
+                  this.render();
                }
             }, this));
          }

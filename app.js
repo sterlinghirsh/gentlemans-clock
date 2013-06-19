@@ -135,8 +135,8 @@ db.once('open', function callback() {
              player.turn_time_used == 0 &&
              player.date_turn_started === null &&
              player.state == 'waiting' &&
-             game.state == 'paused' &&
-             game.current_turn == 1) {
+             gameData.state == 'paused' &&
+             gameData.current_turn == 1) {
                // We're resetting the player, so don't do anything fancy.
                resettingGame = true;
             } else if (player.date_turn_started !== null &&
@@ -154,9 +154,9 @@ db.once('open', function callback() {
                player.turn_time_used = dbPlayer.turn_time_used || 0;
                player.game_time_used = dbPlayer.game_time_used || 0;
                player.turn_time_used += timeDiff;
-               if (player.turn_time_used > game.time_per_turn) {
-                  player.game_time_used += player.turn_time_used - game.time_per_turn;
-                  player.turn_time_used = game.time_per_turn;
+               if (player.turn_time_used > gameData.time_per_turn) {
+                  player.game_time_used += player.turn_time_used - gameData.time_per_turn;
+                  player.turn_time_used = gameData.time_per_turn;
                }
 
                // Don't do this on pause.
