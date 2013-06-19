@@ -1310,6 +1310,15 @@ function($, _, Backbone, Custom) {
          }
          return null;
       }
+      , getPlayerPositionByGuid: function(guid) {
+         var players = this.get('players');
+         for (var i = 0; i < players.length; ++i) {
+            if (players[i].guid === guid) {
+               return {position: i, max: players.length - 1};
+            }
+         }
+         return null;
+      }
       , getPlayerTimeLeft: function(player) {
          var now = new Date;
          var gameTimeLeft  = this.get('time_per_game') - player.game_time_used;
@@ -1500,6 +1509,7 @@ function($, _, Backbone, Custom) {
          };
          players.push(data);
          this.set('players', players);
+         return data;
       }
    });
 });
@@ -1919,7 +1929,7 @@ define('text',['module'], function (module) {
     return text;
 });
 
-define('text!templates/edit-player.html',[],function () { return '<fieldset>\n   <legend><%-name%></legend>\n   <div class="row-fluid">\n      <div class="span6">\n         <label for="playerName">Name</label>\n         <input type="text" value="<%-name%>" class="input-block-level" maxlength="16"\n          id="playerName" name="name">\n      </div>\n      <div class="span6">\n         <label for="playerColor">Color</label>\n         <select name="color" id="playerColor" class="input-block-level">\n            <% for (var i = 0; i < validColors.length; ++i) { %>\n            <option class="<%-validColors[i]%>" value="<%-validColors[i]%>"\n            <%= color == validColors[i] ? \'selected\' : \'\' %>>\n               <%-_.capitalize(validColors[i])%>\n            </option>\n            <% } %>\n         </select>\n      </div>\n   </div>\n   <div class="row-fluid">\n      <div class="span3">\n         <a class="btn btn-danger btn-large btn-block" id="removePlayerButton"><i class="icon-trash"></i></a>\n      </div>\n      <div class="span9">\n         <input type="submit" value="Update Player" class="btn btn-success btn-large btn-block">\n      </div>\n   </div>\n</fieldset>\n';});
+define('text!templates/edit-player.html',[],function () { return '<fieldset>\n   <legend><%-name%></legend>\n   <div class="row-fluid">\n      <div class="span6">\n         <label for="playerName">Name</label>\n         <input type="text" value="<%-name%>" class="input-block-level" maxlength="16"\n          id="playerName" name="name">\n      </div>\n      <div class="span6">\n         <label for="playerColor">Color</label>\n         <select name="color" id="playerColor" class="input-block-level">\n            <% for (var i = 0; i < validColors.length; ++i) { %>\n            <option class="<%-validColors[i]%>" value="<%-validColors[i]%>"\n            <%= color == validColors[i] ? \'selected\' : \'\' %>>\n               <%-_.capitalize(validColors[i])%>\n            </option>\n            <% } %>\n         </select>\n      </div>\n   </div>\n   <div class="row-fluid">\n      <div class="span3">\n         <a class="btn btn-danger btn-large btn-block" id="removePlayerButton"><i class="icon-trash"></i></a>\n      </div>\n      <div class="span9">\n         <button type="submit" class="btn btn-success btn-large btn-block"><i class="icon-save"></i> Save</button>\n      </div>\n   </div>\n   <div class="row-fluid movePlayerButtons">\n      <div class="span6">\n         <a class="movePlayerUpButton btn btn-large btn-block btn-warning <%- positionInfo.position == 0 ? \'disabled\' : \'\'%>">\n            <i class="icon-arrow-up"></i> Move Up\n         </a>\n      </div>\n      <div class="span6">\n         <a class="movePlayerDownButton btn btn-large btn-block btn-warning <%- positionInfo.position == positionInfo.max ? \'disabled\' : \'\'%>">\n            <i class="icon-arrow-down"></i> Move Down\n         </a>\n      </div>\n   </div>\n\n   <div class="row-fluid">\n      <div class="span12">\n         <a class="btn btn-large btn-block btn-inverse" data-dismiss="modal" ><i class="icon-reply"></i> Return to Game</a>\n      </div>\n   </div>\n</fieldset>\n';});
 
 define('views/edit-player-view',['jquery', 'underscore', 'backbone', 'bootbox',
 'custom', 
@@ -1933,18 +1943,79 @@ define('views/edit-player-view',['jquery', 'underscore', 'backbone', 'bootbox',
          this.validColors = Custom.validColors;
          this.$el.on('hidden', function() {
             that.undelegateEvents();
+         }).on('shown', function() {
+            that.$('#playerName').focus();
          });
          this.render();
       }
       , render: function() {
          var data = _.extend(this.model, {
             validColors: this.validColors
+            , positionInfo: this.options.game.
+             getPlayerPositionByGuid(this.model.guid)
          });
          this.form.html(this.template(this.model));
-         //this.options.gameView.undelegateEvents();
          this.$el.modal();
       }, events: {
-         'click #removePlayerButton': function(ev) {
+         'click .movePlayerUpButton': function(ev) {
+            var players = this.options.game.get('players');
+            var keyToMove = null;
+            for (var i = 0; i < players.length; ++i) {
+               if (players[i].guid == this.model.guid) {
+                  keyToMove = i;
+                  break;
+               }
+            }
+            
+            if (keyToMove === null) {
+               console.error("Tried to move null player.");
+               return;
+            }
+
+            if (keyToMove === 0) {
+               return;
+            }
+
+            var temp = players[i - 1];
+            players[i - 1] = players[i];
+            players[i] = temp;
+            
+            this.options.game.set({players: players});
+            if (this.options.game.get('public')) {
+               this.options.game.save();
+            }
+            this.render();
+         }
+         , 'click .movePlayerDownButton': function(ev) {
+            var players = this.options.game.get('players');
+            var keyToMove = null;
+            for (var i = 0; i < players.length; ++i) {
+               if (players[i].guid == this.model.guid) {
+                  keyToMove = i;
+                  break;
+               }
+            }
+            
+            if (keyToMove === null) {
+               console.error("Tried to move null player.");
+               return;
+            }
+
+            if (keyToMove === players.length - 1) {
+               return;
+            }
+
+            var temp = players[i + 1];
+            players[i + 1] = players[i];
+            players[i] = temp;
+            
+            this.options.game.set({players: players});
+            if (this.options.game.get('public')) {
+               this.options.game.save();
+            }
+            this.render();
+         }
+         , 'click #removePlayerButton': function(ev) {
             ev.preventDefault();
             this.undelegateEvents();
             bootbox.confirm("Are you sure you want to remove this player? You cannot undo this action.",
@@ -2145,12 +2216,18 @@ _Game, _GameControls, _GameSettings, Custom) {
       , events: {
          'click .addPlayerButton': function(ev) {
             ev.preventDefault();
-            this.model.addNewPlayer();
+            var player = this.model.addNewPlayer();
             if (this.model.get('public')) {
                this.model.save();
             } else {
                this.render();
             }
+            new EditPlayerView({
+               el: $('#editPlayerFormHolder')
+               , model: player
+               , game: this.model
+               , gameView: this
+            });
          }
          , 'click .nextPlayerButton': function(ev) {
             ev.preventDefault();

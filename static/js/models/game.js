@@ -38,6 +38,15 @@ function($, _, Backbone, Custom) {
          }
          return null;
       }
+      , getPlayerPositionByGuid: function(guid) {
+         var players = this.get('players');
+         for (var i = 0; i < players.length; ++i) {
+            if (players[i].guid === guid) {
+               return {position: i, max: players.length - 1};
+            }
+         }
+         return null;
+      }
       , getPlayerTimeLeft: function(player) {
          var now = new Date;
          var gameTimeLeft  = this.get('time_per_game') - player.game_time_used;
@@ -228,6 +237,7 @@ function($, _, Backbone, Custom) {
          };
          players.push(data);
          this.set('players', players);
+         return data;
       }
    });
 });

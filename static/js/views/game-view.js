@@ -139,12 +139,18 @@ _Game, _GameControls, _GameSettings, Custom) {
       , events: {
          'click .addPlayerButton': function(ev) {
             ev.preventDefault();
-            this.model.addNewPlayer();
+            var player = this.model.addNewPlayer();
             if (this.model.get('public')) {
                this.model.save();
             } else {
                this.render();
             }
+            new EditPlayerView({
+               el: $('#editPlayerFormHolder')
+               , model: player
+               , game: this.model
+               , gameView: this
+            });
          }
          , 'click .nextPlayerButton': function(ev) {
             ev.preventDefault();

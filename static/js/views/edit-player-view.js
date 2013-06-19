@@ -10,18 +10,79 @@ define(['jquery', 'underscore', 'backbone', 'bootbox',
          this.validColors = Custom.validColors;
          this.$el.on('hidden', function() {
             that.undelegateEvents();
+         }).on('shown', function() {
+            that.$('#playerName').focus();
          });
          this.render();
       }
       , render: function() {
          var data = _.extend(this.model, {
             validColors: this.validColors
+            , positionInfo: this.options.game.
+             getPlayerPositionByGuid(this.model.guid)
          });
          this.form.html(this.template(this.model));
-         //this.options.gameView.undelegateEvents();
          this.$el.modal();
       }, events: {
-         'click #removePlayerButton': function(ev) {
+         'click .movePlayerUpButton': function(ev) {
+            var players = this.options.game.get('players');
+            var keyToMove = null;
+            for (var i = 0; i < players.length; ++i) {
+               if (players[i].guid == this.model.guid) {
+                  keyToMove = i;
+                  break;
+               }
+            }
+            
+            if (keyToMove === null) {
+               console.error("Tried to move null player.");
+               return;
+            }
+
+            if (keyToMove === 0) {
+               return;
+            }
+
+            var temp = players[i - 1];
+            players[i - 1] = players[i];
+            players[i] = temp;
+            
+            this.options.game.set({players: players});
+            if (this.options.game.get('public')) {
+               this.options.game.save();
+            }
+            this.render();
+         }
+         , 'click .movePlayerDownButton': function(ev) {
+            var players = this.options.game.get('players');
+            var keyToMove = null;
+            for (var i = 0; i < players.length; ++i) {
+               if (players[i].guid == this.model.guid) {
+                  keyToMove = i;
+                  break;
+               }
+            }
+            
+            if (keyToMove === null) {
+               console.error("Tried to move null player.");
+               return;
+            }
+
+            if (keyToMove === players.length - 1) {
+               return;
+            }
+
+            var temp = players[i + 1];
+            players[i + 1] = players[i];
+            players[i] = temp;
+            
+            this.options.game.set({players: players});
+            if (this.options.game.get('public')) {
+               this.options.game.save();
+            }
+            this.render();
+         }
+         , 'click #removePlayerButton': function(ev) {
             ev.preventDefault();
             this.undelegateEvents();
             bootbox.confirm("Are you sure you want to remove this player? You cannot undo this action.",
