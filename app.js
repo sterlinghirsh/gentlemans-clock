@@ -8,6 +8,7 @@ mongoose.connect(mongolaburi);
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 var app = express();
+var maxPlayerLength = 12;
 
 // This will be keyed on game id.
 var pendingResponses = {};
@@ -165,6 +166,9 @@ db.once('open', function callback() {
                }
                player.turn_time_used = 0;
                player.date_turn_started = null;
+            }
+            if (player.name.length > maxPlayerLength) {
+               player.name = player.name.substring(0, maxPlayerLength);
             }
             return player;
          });

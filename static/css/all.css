@@ -198,8 +198,8 @@ body {
 }
 #editPlayerFormHolder {
   padding: 5px;
-  width: 320px;
-  margin-left: -160px;
+  width: 300px;
+  margin-left: -150px;
 }
 #editPlayerFormHolder #editPlayerForm {
   margin-bottom: 0px;
@@ -209,13 +209,13 @@ body {
 }
 #gameSettingsFormHolder {
   padding: 5px;
-  width: 320px;
-  margin-left: -160px;
+  width: 300px;
+  margin-left: -150px;
 }
 .bootbox {
   padding: 5px;
-  width: 320px;
-  margin-left: -160px;
+  width: 300px;
+  margin-left: -150px;
   z-index: 1070;
 }
 .bootbox + .modal-backdrop {

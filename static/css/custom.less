@@ -1,3 +1,5 @@
+@modalWidth: 300px;
+
 body {
    background-color: #ddd;
    padding-left: 0 !important;
@@ -118,8 +120,8 @@ body {
 
 #editPlayerFormHolder {
    padding: 5px;
-   width: 320px;
-   margin-left: -160px;
+   width: @modalWidth;
+   margin-left: (-@modalWidth / 2);
 
    #editPlayerForm {
       margin-bottom: 0px;
@@ -132,14 +134,14 @@ body {
 
 #gameSettingsFormHolder {
    padding: 5px;
-   width: 320px;
-   margin-left: -160px;
+   width: @modalWidth;
+   margin-left: (-@modalWidth / 2);
 }
 
 .bootbox {
    padding: 5px;
-   width: 320px;
-   margin-left: -160px;
+   width: @modalWidth;
+   margin-left: (-@modalWidth / 2);
    z-index: 1070;
 }
 
