@@ -11,7 +11,9 @@ _Game, _GameControls, _GameSettings, Custom) {
       , controlsTemplate: _.template(_GameControls)
       , settingsTemplate: _.template(_GameSettings)
       , lastNumPlayers: -1
+      , refreshTime: 1000
       , lastGuidString: ''
+      , refreshInterval: null
       , initialize: function() {
          if (this.model !== null) {
             this.model.on('change', this.render, this);
@@ -22,7 +24,14 @@ _Game, _GameControls, _GameSettings, Custom) {
             //this.model.fetch(); // re-get the model
          }
          this.refreshInterval = window.setInterval(
-          _.bind(this.render, this), 1000);
+          _.bind(this.render, this), this.refreshTime);
+      }
+      , restartInterval: function() {
+         if (this.refreshInterval !== null) {
+            window.clearInterval(this.refreshInterval);
+         }
+         this.refreshInterval = window.setInterval(
+          _.bind(this.render, this), this.refreshTime);
       }
       , setModel: function(model) {
          if (this.model !== null) {
@@ -51,6 +60,7 @@ _Game, _GameControls, _GameSettings, Custom) {
       }
       , updateTimes: function() {
          var that = this;
+         var now = new Date;
          this.$('li.player').each(function() {
             var guid = $(this).data('guid');
             var player = that.model.getPlayerByGuid(guid);
@@ -58,7 +68,7 @@ _Game, _GameControls, _GameSettings, Custom) {
                return;
             }
 
-            var playerTimeLeft = that.model.getPlayerTimeLeft(player);
+            var playerTimeLeft = that.model.getPlayerTimeLeft(player, now);
             var gameTimeString = Custom.displayTime(playerTimeLeft.gameTimeLeft);
             var turnTimeString = Custom.displayTime(playerTimeLeft.turnTimeLeft);
 
@@ -107,13 +117,9 @@ _Game, _GameControls, _GameSettings, Custom) {
          }
          var that = this;
          var game = this.model.toJSON();
-         /*
-         game.gameTimeString = Custom.displayTime(game.time_per_game);
-         game.turnTimeString = Custom.displayTime(game.time_per_turn);
-         */
          var now = new Date;
          game.players = _.map(game.players, function(player) {
-            var playerTimeLeft = that.model.getPlayerTimeLeft(player);
+            var playerTimeLeft = that.model.getPlayerTimeLeft(player, now);
             player.gameTimeString = Custom.displayTime(playerTimeLeft.gameTimeLeft);
             player.turnTimeString = Custom.displayTime(playerTimeLeft.turnTimeLeft);
             return player;
@@ -138,15 +144,18 @@ _Game, _GameControls, _GameSettings, Custom) {
          }
          return this;
       }
+      , save: function() {
+         if (this.model.get('public')) {
+            this.model.save();
+         } else {
+            this.render();
+         }
+      }
       , events: {
          'click .addPlayerButton': function(ev) {
             ev.preventDefault();
             var player = this.model.addNewPlayer();
-            if (this.model.get('public')) {
-               this.model.save();
-            } else {
-               this.render();
-            }
+            this.save();
             new EditPlayerView({
                el: $('#editPlayerFormHolder')
                , model: player
@@ -157,20 +166,14 @@ _Game, _GameControls, _GameSettings, Custom) {
          , 'click .nextPlayerButton': function(ev) {
             ev.preventDefault();
             this.model.startNextPlayer();
-            if (this.model.get('public')) {
-               this.model.save();
-            } else {
-               this.render();
-            }
+            this.save();
+            this.restartInterval();
          }
          , 'click .prevPlayerButton': function(ev) {
             ev.preventDefault();
             this.model.startPrevPlayer();
-            if (this.model.get('public')) {
-               this.model.save();
-            } else {
-               this.render();
-            }
+            this.save();
+            this.restartInterval();
          }
          , 'click .startClockButton': function(ev) {
             ev.preventDefault();
@@ -183,11 +186,8 @@ _Game, _GameControls, _GameSettings, Custom) {
                this.model.resetClock();
             }
 
-            if (this.model.get('public')) {
-               this.model.save();
-            } else {
-               this.render();
-            }
+            this.save();
+            this.restartInterval();
          }
          , 'click .makePublicButton': function(ev) {
             var model = this.model;
@@ -208,11 +208,7 @@ _Game, _GameControls, _GameSettings, Custom) {
 
                this.$('#gameSettingsFormHolder').modal('hide');
                this.model.resetClock();
-               if (this.model.get('public')) {
-                  this.model.save();
-               } else {
-                  this.render();
-               }
+               this.save();
             }, this));
          }
          , 'click .returnToMainMenuButton': function(ev) {

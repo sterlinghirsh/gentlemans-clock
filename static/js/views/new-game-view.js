@@ -8,6 +8,8 @@ define(['jquery', 'underscore', 'backbone',
             ev.preventDefault();
             var form = $(ev.currentTarget);
             var data = form.serializeObject();
+            data.time_per_turn = parseInt(data.time_per_turn, 10);
+            data.time_per_game = parseInt(data.time_per_game, 10);
             var model = new Game(data);
             model.set({
                state: 'paused'

@@ -47,16 +47,19 @@ function($, _, Backbone, Custom) {
          }
          return null;
       }
-      , getPlayerTimeLeft: function(player) {
-         var now = new Date;
-         var gameTimeLeft  = this.get('time_per_game') - player.game_time_used;
+      , getPlayerTimeLeft: function(player, now) {
+         if (_.isUndefined(now)) {
+            now = new Date;
+         }
+         var gameTimeLeft = this.get('time_per_game') - player.game_time_used;
          var turnTimeLeft = this.get('time_per_turn') - player.turn_time_used;
          if (player.date_turn_started !== null) {
-            var timeDiff = Math.floor((now - serverToLocal(player.date_turn_started)) / 1000);
+            // Used to Math.floor here.
+            var timeDiff = (now - serverToLocal(player.date_turn_started)) / 1000;
             if (this.get('state') == 'active') {
                turnTimeLeft -= timeDiff;
             }
-            turnTimeLeft = _.min([this.get('time_per_turn'), turnTimeLeft]);
+            turnTimeLeft = Math.min(this.get('time_per_turn'), turnTimeLeft);
             if (turnTimeLeft < 0) {
                gameTimeLeft += turnTimeLeft;
                turnTimeLeft = 0;
@@ -90,18 +93,19 @@ function($, _, Backbone, Custom) {
             if (key == tempKey) {
                if (player.state == 'waiting') {
                   player.state = 'playing';
-                  player.date_turn_started = new Date();
+                  player.date_turn_started = localToServer(new Date());
                } else if (player.state == 'playing') {
                   // Correct player is already set, we're probably recovering from pause.
-                  player.date_turn_started = new Date();
+                  player.date_turn_started = localToServer(new Date());
                }
             } else if (player.state == 'playing') {
                player.state = 'waiting';
                if (player.date_turn_started !== null) {
                   // This should roughtly match code in
                   // the put handler server side.
-                  var timeDiff = Math.floor((new Date() - 
-                   serverToLocal(player.date_turn_started)) / 1000);
+                  // Used to Math.floor here.
+                  var timeDiff = (new Date() - 
+                   serverToLocal(player.date_turn_started)) / 1000;
 
                   if (player.game_time_used === null) {
                      player.game_time_used = 0;
@@ -139,8 +143,9 @@ function($, _, Backbone, Custom) {
          
          _.each(players, function(player, tempKey) {
             if (player.state == 'playing') {
-               var timeDiff = Math.floor((new Date() - 
-                serverToLocal(player.date_turn_started)) / 1000);
+               // Used to Math.floor here.
+               var timeDiff = (new Date() - 
+                serverToLocal(player.date_turn_started)) / 1000;
 
                if (player.game_time_used === null) {
                   player.game_time_used = 0;

@@ -12,6 +12,9 @@
          function serverToLocal(date) {
             return new Date(new Date(date).getTime() + window.serverTimeDiff);
          }
+         function localToServer(date) {
+            return new Date(new Date(date).getTime() - window.serverTimeDiff);
+         }
       </script>
    <body>
       <div id="main" class="container-fluid">

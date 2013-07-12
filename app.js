@@ -150,8 +150,8 @@ db.once('open', function callback() {
              player.state == 'waiting') {
                // Player just finished a turn.
                // Reuse this logic for pausing the timer.
-               var timeDiff = Math.floor((new Date() -
-                dbPlayer.date_turn_started) / 1000);
+               var timeDiff = (new Date() -
+                dbPlayer.date_turn_started) / 1000;
                player.turn_time_used = dbPlayer.turn_time_used || 0;
                player.game_time_used = dbPlayer.game_time_used || 0;
                player.turn_time_used += timeDiff;
