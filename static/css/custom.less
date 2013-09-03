@@ -19,18 +19,41 @@ body {
    .startGame {
       height: 60%;
       width: 100%;
-   }
-   .joinGame {
-      height: 30%;
-      width: 100%;
-   }
-
-   .joinGame, .startGame {
+      line-height: 60px;
       padding-left: 0;
       padding-right: 0;
       font-size: 40px;
-      line-height: 60px;
       margin-top: 10px;
+   }
+
+   #joinGameForm {
+      margin-top: 10px;
+
+      input {
+         font-size: 20px;
+         line-height: 30px;
+         height: 30px;
+         width: 48%;
+         padding-left: 1%;
+         padding-right: 1%;
+      }
+
+      button {
+         font-size: 20px;
+         line-height: 30px;
+         height: 40px;
+         width: 50%;
+         padding-top: 4px;
+      }
+
+      div.input-append {
+         display: block;
+      }
+
+      .halfWidth {
+         width: 50%;
+         display: inline-block;
+      }
    }
 }
 
@@ -164,4 +187,13 @@ body {
 
 .container-fluid {
    padding: 5px;
+}
+
+.btn {
+   -webkit-touch-callout: none;
+   -webkit-user-select: none;
+   -khtml-user-select: none;
+   -moz-user-select: -moz-none;
+   -ms-user-select: none;
+   user-select: none;
 }

@@ -18,9 +18,6 @@ _Game, _GameControls, _GameSettings, Custom) {
          if (this.model !== null) {
             this.model.on('change', this.render, this);
             this.render();
-            if (this.model.get('public')) {
-               this.model.startLongPolling();
-            }
             //this.model.fetch(); // re-get the model
          }
          this.refreshInterval = window.setInterval(
@@ -42,8 +39,8 @@ _Game, _GameControls, _GameSettings, Custom) {
          this.model.on('change', this.render, this);
          this.model.on('change:join_code', function() {
             this.options.router.navigate('game/' + this.model.get('join_code'));
-            this.model.startLongPolling();
          }, this);
+         /*
          this.model.on('change:public', function() {
             if (this.model.get('public')) {
                this.model.startLongPolling();
@@ -51,12 +48,10 @@ _Game, _GameControls, _GameSettings, Custom) {
                this.model.stopLongPolling();
             }
          }, this);
+         */
          this.lastNumPlayers = -1;
          this.lastGuidString = '';
          this.render();
-         if (this.model.get('public')) {
-            this.model.startLongPolling();
-         }
       }
       , updateTimes: function() {
          var that = this;
@@ -191,6 +186,7 @@ _Game, _GameControls, _GameSettings, Custom) {
          }
          , 'click .makePublicButton': function(ev) {
             var model = this.model;
+            this.options.router.navigate('game/' + this.model.get('join_code'));
             this.model.set({'public': true}, {silent: true}).save(null, {
                success: function() {
                   this.$('#gameSettingsFormHolder').modal('hide');

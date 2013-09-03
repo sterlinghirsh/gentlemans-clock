@@ -8,6 +8,8 @@
       "underscore": "1.4.4",
       "mongoose": "3.6.11",
       "consolidate": "0.9.1",
-      "less": "1.4.0"
+      "less": "1.4.0",
+      "socket.io": "0.9.16",
+      "backbone.io": "0.4.0"
    }
 }

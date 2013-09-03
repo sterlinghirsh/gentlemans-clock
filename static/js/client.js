@@ -1,24 +1,31 @@
-define(["jquery", "underscore", "backbone",
+define(["jquery", "underscore", "backbone", "socketio", "backboneio",
 'collections/games',
 'models/game',
 'views/game-list-view', 'views/new-game-view', 'views/game-view',
 'views/main-menu'],
-function($, _, Backbone, Games, Game, 
+function($, _, Backbone, socketio, backboneio,
+Games, Game, 
 GameListView, NewGameView, GameView,
 MainMenuView) {
    return {
       initialize: function() {
+         Backbone.io.connect();
+         /*
+         var MyCollection = Backbone.Collection.extend({
+            backend: 'mybackend',
+            initialize: function() {
+               this.bindBackend();
+            }
+         });*/
+
+         //var publicCollection = new MyCollection();
+
          var sharedGameView = null;
          var AppRouter = Backbone.Router.extend({
             routes: {
                'startGame': function() {
                   $('#main > div').addClass('hidden');
                   $('#newGame').removeClass('hidden');
-               }
-               , 'joinGame': function() {
-                  $('#main > div').addClass('hidden');
-                  $('#joinGameView').removeClass('hidden');
-                  $('#joinCodeInput').focus();
                }
                , 'game/:join_code': function(join_code) {
                   var that = this;
@@ -27,10 +34,14 @@ MainMenuView) {
                   }
 
                   if (join_code != 'new') {
+                     join_code = join_code.toLowerCase();
                      // Load the game.
                      var newModel = new Game({
                         join_code: join_code
+                        , backend: {name: 'g', channel: join_code}
+                        , public: true
                      });
+                     //publicCollection.add(newModel);
                      newModel.fetch({
                         success: function() {
                            sharedGameView.setModel(newModel);
@@ -72,6 +83,7 @@ MainMenuView) {
 
          var newGameView = new NewGameView({
             el: $('#newGame'),
+            //publicCollection: publicCollection,
             //collection: collection,
             gameView: sharedGameView,
             router: app_router

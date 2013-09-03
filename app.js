@@ -8,10 +8,38 @@ mongoose.connect(mongolaburi);
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 var app = express();
+var server = require('http').createServer(app);
+var backboneio = require('backbone.io');
+var backend = backboneio.createBackend();
+
 var maxPlayerLength = 12;
 
 // This will be keyed on game id.
 var pendingResponses = {};
+
+function displayTime(timeInSeconds) {
+   timeInSeconds = Math.max(0, timeInSeconds);
+   var hours = Math.floor(timeInSeconds / 3600);
+   timeInSeconds -= hours * 3600;
+   var mins = Math.floor(timeInSeconds / 60);
+
+   if (mins < 10 && hours > 0) {
+      mins = "0" + mins;
+   }
+   var secs = Math.floor(timeInSeconds % 60);
+
+   if (secs < 10) {
+      secs = "0" + secs;
+   }
+
+   var timeString = mins + ":" + secs;
+
+   if (hours > 0) {
+      timeString = hours + ":" + timeString;
+   }
+
+   return timeString;
+}
 
 function makeid(size) {
    var text = "";
@@ -53,6 +81,130 @@ db.once('open', function callback() {
    app.use(express.bodyParser());
    app.use(express.logger());
 
+   /*
+   backend.use(function(req, res, next) {
+      console.log(req.backend);
+      console.log(req.method);
+      console.log(JSON.stringify(req.model));
+      console.log("--------------------");
+      next();
+   });
+   */
+
+   backend.create(function(req, res, next) {
+      var newGame = new Game(req.model);
+      newGame.date_created = newGame.date_updated = Date.now();
+      //newGame.join_code = makeid(5);
+      // TODO: Check to make sure we don't have any games with that join_code.
+      newGame.save(function (err) {
+         if (err) throw err;
+         res.end(newGame);
+      });
+   });
+
+   backend.read(function(req, res, next) {
+      Game.findOne({join_code: req.model.join_code.toLowerCase()}, function(err, game) {
+         if (game === null) {
+            res.status(404).send();
+            return;
+         }
+         if (err) throw err;
+         res.end(game);
+      });
+   });
+
+   backend.update(function(req, res, next) {
+      Game.findOne({join_code: req.model.join_code.toLowerCase()}, function(err, game) {
+         var resettingGame = false;
+         var gameData = req.model;
+         if (game === null) {
+            var newGame = new Game(req.model);
+            newGame.date_created = newGame.date_updated = Date.now();
+            //newGame.join_code = makeid(5);
+            // TODO: Check to make sure we don't have any games with that join_code.
+            newGame.save(function (err) {
+               if (err) throw err;
+               res.end(newGame);
+            });
+            return;
+         }
+
+         // TODO: Clean up this goofy logic.
+         gameData.players = _.map(gameData.players, function(player, playerKey) {
+            var dbPlayer = game.players[playerKey];
+            if (typeof dbPlayer == 'undefined') {
+               player.state = 'waiting';
+               player.date_turn_started = null;
+               player.game_time_used = 0;
+               player.turn_time_used = 0;
+            } else if (player.game_time_used == 0 &&
+             player.turn_time_used == 0 &&
+             player.date_turn_started === null &&
+             player.state == 'waiting' &&
+             gameData.state == 'paused' &&
+             gameData.current_turn == 1) {
+               // We're resetting the player, so don't do anything fancy.
+               resettingGame = true;
+            } else if (player.date_turn_started !== null &&
+             player.state == 'playing' && 
+             dbPlayer.date_turn_started === null &&
+             dbPlayer.state == 'waiting') {
+               player.date_turn_started = new Date();
+            } else if (dbPlayer.date_turn_started !== null &&
+             dbPlayer.state == 'playing' &&
+             player.state == 'waiting') {
+               // Player just finished a turn.
+               // Reuse this logic for pausing the timer.
+               var timeDiff = (new Date() -
+                dbPlayer.date_turn_started) / 1000;
+               player.turn_time_used = dbPlayer.turn_time_used || 0;
+               player.game_time_used = dbPlayer.game_time_used || 0;
+               player.turn_time_used += timeDiff;
+               if (player.turn_time_used > gameData.time_per_turn) {
+                  player.game_time_used += player.turn_time_used - gameData.time_per_turn;
+                  player.turn_time_used = gameData.time_per_turn;
+               }
+
+               // Don't do this on pause.
+               if (playerKey === gameData.players.length - 1) {
+                  ++gameData.current_turn;
+               }
+               player.turn_time_used = 0;
+               player.date_turn_started = null;
+            }
+            if (player.name.length > maxPlayerLength) {
+               player.name = player.name.substring(0, maxPlayerLength);
+            }
+            return player;
+         });
+
+         if (gameData.players.length === 0) {
+            gameData.current_turn = 1;
+            gameData.state = 'paused';
+         }
+
+         gameData.date_updated = Date.now();
+
+         game.set(gameData);
+         game.save(function (err) {
+            if (err) throw err;
+
+            res.end(game);
+            // Push to all pending responses for that game.
+
+            /*
+            if (!_.isUndefined(pendingResponses[game.id])) {
+               pendingResponses[game.id].forEach(function(responseInfo) {
+                  responseInfo.res.json(game);
+               });
+               delete pendingResponses[game.id];
+            }
+            */
+         });
+      });
+   });
+
+   // Setup HTML serving.
    app.set('view engine', 'html');
    app.set('views', __dirname + '/views');
 
@@ -62,6 +214,7 @@ db.once('open', function callback() {
       res.render('index.html');
    });
 
+   // Assets
    app.get('/js', function (req, res) {
       res.sendfile(__dirname + '/static/js/main-built.js');
    });
@@ -69,6 +222,10 @@ db.once('open', function callback() {
       res.sendfile(__dirname + '/static/css/all.css');
    });
 
+   // Restful API
+   // TODO: Remove this or figure out a better way.
+   // We mostly want to use the socket.io api.
+   /*
    app.get('/api/games', function(req, res) {
       Game.find(function(err, games) {
          if (err) throw err;
@@ -212,6 +369,29 @@ db.once('open', function callback() {
          }
       });
    }, 3000);
+   */
+
+   app.get('/viewStats', function(req, res) {
+      Game.find({join_code: {'$ne': null}}, 'join_code date_created date_updated', 
+       { sort: { date_created: -1 }}, function(err, results) {
+         if (err) {
+            throw err;
+         }
+
+         var cleanResults = _.map(results, function(result) {
+            return {
+               join_code: result.join_code
+               , age: displayTime(((new Date) - result.date_created) / 1000)
+               , use_length: displayTime((result.date_updated - result.date_created) / 1000)
+            };
+         });
+
+         res.json({
+            count: cleanResults.length
+            , games: cleanResults
+         });
+      });
+   });
 
    // Danger!
    app.delete('/api/games', function(req, res) {
@@ -223,6 +403,7 @@ db.once('open', function callback() {
    app.use("/font", express.static(__dirname + "/static/font"));
 
    var port = process.env.PORT || 3000;
-   app.listen(port);
+   server.listen(port);
+   backboneio.listen(server, {g: backend});
 });
 

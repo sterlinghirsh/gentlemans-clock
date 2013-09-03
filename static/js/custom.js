@@ -23,9 +23,13 @@ define(['underscore'], function(_) {
 
          return timeString;
       }
-      , makeid: function(size) {
+      , makeid: function(size, alpha) {
          var text = "";
          var possible = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+
+         if (alpha) {
+            possible = "abcdefghijklmnopqrstuvwxyz";
+         }
          for (var i=0; i < size; i++) {
             text += possible.charAt(Math.floor(Math.random() * possible.length));
          }

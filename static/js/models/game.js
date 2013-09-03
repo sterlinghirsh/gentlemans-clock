@@ -3,11 +3,14 @@ function($, _, Backbone, Custom) {
    return Backbone.Model.extend({
       urlRoot: '/api/games'
       , idAttribute: 'join_code'
-      , longPolling: false
       , initialize: function() {
          // Not throttling successCallback. Might later, I guess.
-         this.successCallback = _.bind(this.onFetch, this);
-         this.errorCallback = _.throttle(_.bind(this.onFetch, this), 5000);
+         var that = this;
+         this.backend = this.buildBackend(this);
+
+         this.bind('backend:update', function(model) {
+            that.set(model);
+         });
       }
       , getActivePlayerKey: function() {
          var players = this.get('players');
@@ -200,31 +203,6 @@ function($, _, Backbone, Custom) {
             key = (numPlayers + key - 1) % numPlayers;
          }
          return this.startClock(key);
-      }
-      , startLongPolling: function() {
-         this.longPolling = true;
-         this.executeLongPolling();
-      }, executeLongPolling: function() {
-         if (this.longPolling) {
-            _.delay(_.bind(function() {
-               this.fetch({
-                  success: this.successCallback
-                  , error: this.errorCallback
-               });
-            }, this), 100);
-         }
-      }, stopLongPolling: function() {
-         this.longPolling = false;
-      }, onFetch: function() {
-         this.executeLongPolling();
-      }, sync: function(method, model, options) {
-         options = options || {};
-         var url = this.url();
-         if (this.longPolling && method == 'read') {
-            url += "/long_polling/" + this.get('date_updated');
-            options.url = url;
-         }
-         return Backbone.sync(method, model, options);
       }, addNewPlayer: function() {
          var players = this.get('players');
          var usedColors = [];
