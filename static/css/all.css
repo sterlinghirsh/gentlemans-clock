@@ -290,3 +290,6 @@ body {
   line-height: 30px;
   margin-bottom: 0px;
 }
+* {
+  -webkit-tap-highlight-color: transparent;
+}
