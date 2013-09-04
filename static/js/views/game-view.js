@@ -18,7 +18,7 @@ _Game, _GameControls, _GameSettings, Custom) {
          if (this.model !== null) {
             this.model.on('change', this.render, this);
             this.render();
-            this.model.fetch(); // re-get the model
+            //this.model.fetch(); // re-get the model
          }
          this.refreshInterval = window.setInterval(
           _.bind(this.render, this), this.refreshTime);
