@@ -58,10 +58,11 @@ body {
   padding-left: 0;
   padding-right: 0;
   font-size: 40px;
-  margin-top: 10px;
+  margin-top: 0px;
 }
 #mainMenu #joinGameForm {
   margin-top: 10px;
+  margin-bottom: 0px;
 }
 #mainMenu #joinGameForm fieldset {
   width: 100%;
@@ -83,6 +84,7 @@ body {
 }
 #mainMenu #joinGameForm div.input-append {
   display: block;
+  margin-bottom: 0px;
 }
 #mainMenu #joinGameForm .halfWidth {
   width: 50%;

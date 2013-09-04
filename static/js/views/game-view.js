@@ -18,7 +18,7 @@ _Game, _GameControls, _GameSettings, Custom) {
          if (this.model !== null) {
             this.model.on('change', this.render, this);
             this.render();
-            //this.model.fetch(); // re-get the model
+            this.model.fetch(); // re-get the model
          }
          this.refreshInterval = window.setInterval(
           _.bind(this.render, this), this.refreshTime);
@@ -33,22 +33,12 @@ _Game, _GameControls, _GameSettings, Custom) {
       , setModel: function(model) {
          if (this.model !== null) {
             this.model.off('change');
-            this.model.stopLongPolling();
          }
          this.model = model;
          this.model.on('change', this.render, this);
          this.model.on('change:join_code', function() {
             this.options.router.navigate('game/' + this.model.get('join_code'));
          }, this);
-         /*
-         this.model.on('change:public', function() {
-            if (this.model.get('public')) {
-               this.model.startLongPolling();
-            } else {
-               this.model.stopLongPolling();
-            }
-         }, this);
-         */
          this.lastNumPlayers = -1;
          this.lastGuidString = '';
          this.render();
