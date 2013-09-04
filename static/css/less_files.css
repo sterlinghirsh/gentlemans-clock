@@ -208,3 +208,41 @@ body {
   -ms-user-select: none;
   user-select: none;
 }
+.container-fluid {
+  padding-right: 10px;
+  padding-left: 10px;
+}
+.inTitle {
+  color: #eee;
+  text-transform: uppercase;
+}
+.outTitle {
+  color: #999;
+  font-weight: normal;
+  text-transform: uppercase;
+}
+.mainTitle {
+  text-align: center;
+  background: #222222;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #000000), color-stop(1, #333333));
+  background: -ms-linear-gradient(bottom, #000000, #333333);
+  background: -moz-linear-gradient(center bottom, #000000 0%, #333333 100%);
+  background: -o-linear-gradient(#333333, #000000);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#333333', endColorstr='#000000', GradientType=0);
+  margin: 0 -10px 10px -10px;
+  padding: 5px;
+}
+.mainTitle h2 {
+  margin-bottom: 0px;
+  margin-top: 0px;
+}
+.mainTitle h3 {
+  margin-top: 10px;
+  line-height: 30px;
+  margin-bottom: 0px;
+}
+.mainTitle h4 {
+  margin-top: 0px;
+  line-height: 30px;
+  margin-bottom: 0px;
+}
