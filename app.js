@@ -404,6 +404,11 @@ db.once('open', function callback() {
 
    var port = process.env.PORT || 3000;
    server.listen(port);
-   backboneio.listen(server, {g: backend});
+   var io = backboneio.listen(server, {g: backend});
+   io.configure(function() {
+      io.set('transports', ['xhr-polling']);
+      io.set('polling duration', 10);
+   });
+
 });
 
