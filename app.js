@@ -193,101 +193,6 @@ db.once('open', function callback() {
       });
    });
 
-   /*
-   backend.update(function(req, res, next) {
-      Game.findOne({join_code: req.model.join_code.toLowerCase()}, function(err, game) {
-         var resettingGame = false;
-         var gameData = req.model;
-         if (game === null) {
-            var newGame = new Game(req.model);
-            newGame.date_created = newGame.date_updated = Date.now();
-            //newGame.join_code = makeid(5);
-            // TODO: Check to make sure we don't have any games with that join_code.
-            newGame.save(function (err) {
-               if (err) throw err;
-               res.end(newGame);
-            });
-            return;
-         }
-
-         // TODO: Clean up this goofy logic.
-         gameData.players = _.map(gameData.players, function(player, playerKey) {
-            var dbPlayer = game.players[playerKey];
-            if (typeof dbPlayer == 'undefined') {
-               player.state = 'waiting';
-               player.date_turn_started = null;
-               player.game_time_used = 0;
-               player.turn_time_used = 0;
-            } else if (player.game_time_used == 0 &&
-             player.turn_time_used == 0 &&
-             player.date_turn_started === null &&
-             player.state == 'waiting' &&
-             gameData.state == 'paused' &&
-             gameData.current_turn == 1) {
-               // We're resetting the player, so don't do anything fancy.
-               resettingGame = true;
-            } else if (player.date_turn_started !== null &&
-             player.state == 'playing' && 
-             dbPlayer.date_turn_started === null &&
-             dbPlayer.state == 'waiting') {
-               player.date_turn_started = new Date();
-            } else if (dbPlayer.date_turn_started !== null &&
-             dbPlayer.state == 'playing' &&
-             player.state == 'waiting') {
-               // Player just finished a turn.
-               // Reuse this logic for pausing the timer.
-               var timeDiff = (new Date() -
-                dbPlayer.date_turn_started) / 1000;
-               player.turn_time_used = dbPlayer.turn_time_used || 0;
-               player.game_time_used = dbPlayer.game_time_used || 0;
-               player.turn_time_used += timeDiff;
-               if (player.turn_time_used > gameData.time_per_turn) {
-                  player.game_time_used += player.turn_time_used - gameData.time_per_turn;
-                  player.turn_time_used = gameData.time_per_turn;
-               }
-
-               // Don't do this on pause.
-               if (playerKey === gameData.players.length - 1) {
-                  ++gameData.current_turn;
-               }
-               player.turn_time_used = 0;
-               player.date_turn_started = null;
-            }
-            if (player.name.length > maxPlayerLength) {
-               player.name = player.name.substring(0, maxPlayerLength);
-            }
-            return player;
-         });
-
-         if (gameData.players.length === 0) {
-            gameData.current_turn = 1;
-            gameData.state = 'paused';
-         }
-
-         gameData.date_updated = Date.now();
-
-         game.set(gameData);
-         game.save(function (err) {
-            if (err) throw err;
-
-            res.end(game);
-            // Push to all pending responses for that game.
-
-            */
-            /*
-            if (!_.isUndefined(pendingResponses[game.id])) {
-               pendingResponses[game.id].forEach(function(responseInfo) {
-                  responseInfo.res.json(game);
-               });
-               delete pendingResponses[game.id];
-            }
-            */
-            /*
-         });
-      });
-   });
-   */
-
    // Setup HTML serving.
    app.set('view engine', 'html');
    app.set('views', __dirname + '/views');
@@ -478,10 +383,12 @@ db.once('open', function callback() {
    });
 
    // Danger!
+   /*
    app.delete('/api/games', function(req, res) {
       Game.find().remove();
       res.send();
    });
+   */
 
    app.use("/static", express.static(__dirname + "/static"));
    app.use("/font", express.static(__dirname + "/static/font"));

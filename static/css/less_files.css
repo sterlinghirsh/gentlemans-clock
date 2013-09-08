@@ -51,6 +51,13 @@ body {
 .nextPlayerButton {
   font-size: 69px;
 }
+.gameControlsHolder {
+  position: absolute;
+  padding: 1px 10px 1px 10px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
 .gameControls .span2 .row-fluid {
   margin-bottom: 5px;
 }
@@ -60,8 +67,21 @@ body {
 .hidden {
   display: none;
 }
+.gameDisplay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 1px 10px 1px 10px;
+  bottom: 102px;
+  overflow: auto;
+}
+.gameDisplay .playersHolder {
+  position: relative;
+}
 .players {
   margin-left: 0;
+  margin-bottom: 0;
 }
 .players li {
   padding: 2px;

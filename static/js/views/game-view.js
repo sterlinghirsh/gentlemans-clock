@@ -85,7 +85,24 @@ _Game, _GameControls, _GameSettings, Custom) {
             if (player.state == 'waiting') {
                $(this).removeClass('playing').addClass('waiting');
             } else {
-               $(this).removeClass('waiting').addClass('playing');
+               // Player becoming active.
+               if (!$(this).hasClass('playing')) {
+                  $(this).removeClass('waiting').addClass('playing');
+                  var gameDisplay = $('.gameDisplay');
+                  var elTop = $(this).position().top;
+                  var elHeight = $(this).outerHeight();
+                  var elBottom = elTop + elHeight;
+                  var scrollTop = gameDisplay.scrollTop();
+                  var scrollHeight = gameDisplay.innerHeight();
+                  var scrollBottom = scrollTop + scrollHeight;
+                  var offset = (scrollHeight / 2) - (elHeight / 2);
+
+                  if (elTop < scrollTop || elBottom > scrollBottom) {
+                     gameDisplay.animate({
+                        scrollTop: elTop - offset
+                     }, 200);
+                  }
+               }
             }
          });
       }
