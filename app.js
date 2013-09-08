@@ -9,8 +9,7 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 var app = express();
 var server = require('http').createServer(app);
-var backboneio = require('backbone.io');
-var backend = backboneio.createBackend();
+var io = require('socket.io').listen(server);
 
 var maxPlayerLength = 12;
 
@@ -81,38 +80,120 @@ db.once('open', function callback() {
    app.use(express.bodyParser());
    app.use(express.logger());
 
-   /*
-   backend.use(function(req, res, next) {
-      console.log(req.backend);
-      console.log(req.method);
-      console.log(JSON.stringify(req.model));
-      console.log("--------------------");
-      next();
-   });
-   */
+   io.sockets.on('connection', function(socket) {
+      var createGame = function(req, respond) {
+         var newGame = new Game(req.model);
+         newGame.date_created = newGame.date_updated = Date.now();
+         newGame.join_code = makeid(5);
+         // TODO: Check to make sure we don't have any games with that join_code.
+         newGame.save(function (err) {
+            //if (err) throw err;
+            socket.join(newGame.join_code);
+            respond(err, newGame);
+         });
+      };
 
-   backend.create(function(req, res, next) {
-      var newGame = new Game(req.model);
-      newGame.date_created = newGame.date_updated = Date.now();
-      //newGame.join_code = makeid(5);
-      // TODO: Check to make sure we don't have any games with that join_code.
-      newGame.save(function (err) {
-         if (err) throw err;
-         res.end(newGame);
-      });
-   });
+      socket.on('create', createGame);
 
-   backend.read(function(req, res, next) {
-      Game.findOne({join_code: req.model.join_code.toLowerCase()}, function(err, game) {
-         if (game === null) {
-            res.status(404).send();
+      socket.on('read', function(req, respond) {
+         var join_code = req.model.join_code.toLowerCase();
+         if (join_code.length != 5) {
+            respond({error: "Invalid join code."});
             return;
          }
-         if (err) throw err;
-         res.end(game);
+
+         Game.findOne({join_code: join_code}, function(err, game) {
+            if (game === null) {
+               //res.status(404).send();
+               respond({error: "Game not found."}, null);
+               return;
+            }
+            if (err) {
+               respond({error: "Server error."}, null);
+               throw err;
+            }
+            socket.join(join_code);
+            respond(null, game);
+         });
+      });
+
+      socket.on('update', function(req, respond) {
+         var join_code = req.model.join_code.toLowerCase();
+         Game.findOne({join_code: join_code}, function(err, game) {
+            var resettingGame = false;
+            var gameData = req.model;
+            socket.join(join_code);
+            // TODO: Combine this with the newgame function.
+            if (game === null) {
+               return createGame(req, respond);
+            }
+
+            // TODO: Clean up this goofy logic.
+            gameData.players = _.map(gameData.players, function(player, playerKey) {
+               var dbPlayer = game.players[playerKey];
+               if (typeof dbPlayer == 'undefined') {
+                  player.state = 'waiting';
+                  player.date_turn_started = null;
+                  player.game_time_used = 0;
+                  player.turn_time_used = 0;
+               } else if (player.game_time_used == 0 &&
+                player.turn_time_used == 0 &&
+                player.date_turn_started === null &&
+                player.state == 'waiting' &&
+                gameData.state == 'paused' &&
+                gameData.current_turn == 1) {
+                  // We're resetting the player, so don't do anything fancy.
+                  resettingGame = true;
+               } else if (player.date_turn_started !== null &&
+                player.state == 'playing' && 
+                dbPlayer.date_turn_started === null &&
+                dbPlayer.state == 'waiting') {
+                  player.date_turn_started = new Date();
+               } else if (dbPlayer.date_turn_started !== null &&
+                dbPlayer.state == 'playing' &&
+                player.state == 'waiting') {
+                  // Player just finished a turn.
+                  // Reuse this logic for pausing the timer.
+                  var timeDiff = (new Date() -
+                   dbPlayer.date_turn_started) / 1000;
+                  player.turn_time_used = dbPlayer.turn_time_used || 0;
+                  player.game_time_used = dbPlayer.game_time_used || 0;
+                  player.turn_time_used += timeDiff;
+                  if (player.turn_time_used > gameData.time_per_turn) {
+                     player.game_time_used += player.turn_time_used - gameData.time_per_turn;
+                     player.turn_time_used = gameData.time_per_turn;
+                  }
+
+                  // Don't do this on pause.
+                  if (playerKey === gameData.players.length - 1) {
+                     ++gameData.current_turn;
+                  }
+                  player.turn_time_used = 0;
+                  player.date_turn_started = null;
+               }
+               if (player.name.length > maxPlayerLength) {
+                  player.name = player.name.substring(0, maxPlayerLength);
+               }
+               return player;
+            });
+
+            if (gameData.players.length === 0) {
+               gameData.current_turn = 1;
+               gameData.state = 'paused';
+            }
+
+            gameData.date_updated = Date.now();
+
+            game.set(gameData);
+            game.save(function (err) {
+               respond(err, game);
+               socket.broadcast.to(join_code).emit('update', game);
+            });
+         });
       });
    });
 
+   /*
    backend.update(function(req, res, next) {
       Game.findOne({join_code: req.model.join_code.toLowerCase()}, function(err, game) {
          var resettingGame = false;
@@ -192,6 +273,7 @@ db.once('open', function callback() {
             res.end(game);
             // Push to all pending responses for that game.
 
+            */
             /*
             if (!_.isUndefined(pendingResponses[game.id])) {
                pendingResponses[game.id].forEach(function(responseInfo) {
@@ -200,9 +282,11 @@ db.once('open', function callback() {
                delete pendingResponses[game.id];
             }
             */
+            /*
          });
       });
    });
+   */
 
    // Setup HTML serving.
    app.set('view engine', 'html');
@@ -404,7 +488,7 @@ db.once('open', function callback() {
 
    var port = process.env.PORT || 3000;
    server.listen(port);
-   var io = backboneio.listen(server, {g: backend});
+   
    io.configure(function() {
       io.set('transports', ['xhr-polling']);
       io.set('polling duration', 10);

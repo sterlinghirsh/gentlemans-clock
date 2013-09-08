@@ -13,8 +13,7 @@
       "json": "lib/json3",
       "bootbox": "lib/bootbox.min",
       "bootstrap": "lib/bootstrap.min",
-      "socketio": "lib/socket.io",
-      "backboneio": "lib/backbone.io"
+      "socketio": "lib/socket.io"
    },
    "shim": {
       "jquery": {
@@ -43,9 +42,6 @@
       },
       "json": {
          exports: 'JSON'
-      },
-      "backboneio": {
-         deps: ['backbone', 'socketio']
       }
    },
    include: ['main'],

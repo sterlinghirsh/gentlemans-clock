@@ -1,6 +1,55 @@
-define(['underscore'], function(_) {
-   return {
-      displayTime: function (timeInSeconds) {
+define(['underscore', 'socketio', 'backbone'], function(_, io, Backbone) {
+   var Custom = {
+      socket: null
+      , origSync: null
+      , sharedGame: null
+      , socketConnect: function() {
+         this.socket = io.connect();
+         this.origSync = Backbone.sync;
+         
+         Custom.socket.on('update', function(data) {
+            if (Custom.sharedGame !== null) {
+               Custom.sharedGame.trigger('update', data);
+            }
+         });
+
+         // TODO: Better error reporting.
+         Custom.socket.on('error', function(data) {
+            console.error(data);
+         });
+
+         Backbone.sync = function(method, model, options) {
+            options = _.clone(options) || {};
+
+            var error = options.error || function() {};
+            var success = options.success || function() {};
+            // Don't pass these to server
+            delete options.error;
+            delete options.success;
+            delete options.collection; 
+            var req = {
+               model: model.toJSON(),
+               options: options
+            };
+
+            Custom.socket.emit(method, req, function(err, resp) {
+               if (err) {
+                  console.error(err);
+                  error(err);
+               } else {
+                  success(resp);
+               }
+            });
+         };
+      }
+      , socketDisconnect: function() {
+         if (this.socket !== null) {
+            this.socket.disconnect();
+            this.socket = null;
+            Backbone.sync = Custom.origSync;
+         }
+      }
+      , displayTime: function (timeInSeconds) {
          timeInSeconds = Math.max(0, timeInSeconds);
          var hours = Math.floor(timeInSeconds / 3600);
          timeInSeconds -= hours * 3600;
@@ -46,5 +95,8 @@ define(['underscore'], function(_) {
             return unusedColors[0];
          }
       }
-   }
+   };
+
+   _.extend(Custom, Backbone.events);
+   return Custom;
 });

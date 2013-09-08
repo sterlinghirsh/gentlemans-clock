@@ -8,7 +8,6 @@ define(['jquery', 'underscore', 'backbone', 'custom',
             ev.preventDefault();
             var form = $(ev.currentTarget);
             var formData = form.serializeObject();
-            join_code = Custom.makeid(5, true);
             var data = {
                state: 'paused'
                , time_per_turn: parseInt(formData.time_per_turn, 10)
@@ -19,15 +18,14 @@ define(['jquery', 'underscore', 'backbone', 'custom',
                , count_up: false
                , public: false
                , players: []
-               , join_code: join_code
-               , backend: {name: 'g', channel: join_code}
+               , join_code: null
             };
-            var model = new Game(data);
-            model.addNewPlayer();
-            model.addNewPlayer();
+            Custom.sharedGame = new Game(data);
+            Custom.sharedGame.addNewPlayer();
+            Custom.sharedGame.addNewPlayer();
             //that.collection.add(model);
             //that.options.publicCollection.add(model);
-            that.options.gameView.setModel(model);
+            that.options.gameView.setModel(Custom.sharedGame);
             this.options.router.navigate('game/new', {trigger: true});
          }
       }

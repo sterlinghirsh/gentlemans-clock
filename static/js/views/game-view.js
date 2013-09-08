@@ -31,13 +31,20 @@ _Game, _GameControls, _GameSettings, Custom) {
           _.bind(this.render, this), this.refreshTime);
       }
       , setModel: function(model) {
+         var that = this;
+         if (model.get('error')) {
+            bootbox.alert(model.get('error'), function() {
+               that.options.router.navigate('/', {trigger: true});
+            });
+            return;
+         }
          if (this.model !== null) {
             this.model.off('change');
          }
          this.model = model;
          this.model.on('change', this.render, this);
          this.model.on('change:join_code', function() {
-            this.options.router.navigate('game/' + this.model.get('join_code'));
+            that.options.router.navigate('game/' + this.model.get('join_code'));
          }, this);
          this.lastNumPlayers = -1;
          this.lastGuidString = '';
@@ -175,11 +182,13 @@ _Game, _GameControls, _GameSettings, Custom) {
             this.restartInterval();
          }
          , 'click .makePublicButton': function(ev) {
+            Custom.socketConnect();
             var model = this.model;
-            this.options.router.navigate('game/' + this.model.get('join_code'));
+            var that = this;
             this.model.set({'public': true}, {silent: true}).save(null, {
                success: function() {
-                  this.$('#gameSettingsFormHolder').modal('hide');
+                  that.options.router.navigate('game/' + that.model.get('join_code'));
+                  that.$('#gameSettingsFormHolder').modal('hide');
                   bootbox.alert("Have friends join with code: " + model.get('join_code') +
                    '<br>Or send a direct link:<br><a href="' + window.location.href +
                    '">' + window.location.href + '</a>');
@@ -204,7 +213,11 @@ _Game, _GameControls, _GameSettings, Custom) {
             _.bind(function(result) {
                this.delegateEvents();
                if (!result) return;
+               Custom.socketDisconnect();
+               this.model.set({public: false, join_code: null});
                this.$('#gameSettingsFormHolder').modal('hide');
+               delete Custom.sharedGame;
+               Custom.sharedGame = null;
                this.options.router.navigate('#', {trigger: true});
             }, this));
          }

@@ -4,12 +4,14 @@ function($, _, Backbone, Custom) {
       urlRoot: '/api/games'
       , idAttribute: 'join_code'
       , initialize: function() {
-         // Not throttling successCallback. Might later, I guess.
          var that = this;
-         this.backend = this.buildBackend(this);
 
-         this.bind('backend:update', function(model) {
-            that.set(model);
+         this.bind('update', function(model) {
+            if (model.error) {
+               console.error(model.error);
+            } else {
+               that.set(model);
+            }
          });
       }
       , getActivePlayerKey: function() {

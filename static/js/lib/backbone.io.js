@@ -1,25 +1,41 @@
 (function() {
-    var connected = new Promise();
-
-    Backbone.io = Backbone.IO = {
-        connect: function() {
-            var socket = io.connect.apply(io, arguments);
-            connected.resolve(socket);
-            return socket;
+    Backbone.io = {
+        socket: null
+        , connect: function() {
+            if (Backbone.io.socket !== null) {
+               Backbone.io.socket.socket.reconnect();
+               console.log('it was not null');
+            } else {
+               Backbone.io.socket = io.connect.apply(io, arguments);
+               console.log('it was null');
+            }
+            console.log('connecting');
+            Backbone.io.connected.resolve(Backbone.io.socket);
+            return Backbone.io.socket;
         }
+        , disconnect: function() {
+            if (Backbone.io.socket !== null) {
+               Backbone.io.socket.disconnect();
+               delete Backbone.io.socket;
+               Backbone.io.socket = null;
+               Backbone.io.connected.resolved = undefined;
+               Backbone.io.connected.callbacks = [];
+            }
+        }, connected: new Promise()
     };
     
     var origSync = Backbone.sync;
 
     Backbone.sync = function(method, model, options) {
-        var backend = model.backend || (model.collection && model.collection.backend);
-        
+        var backend = model.backend;       
         options = _.clone(options) || {};
 
         var error = options.error || function() {};
         var success = options.success || function() {};
         
+        console.log("fart");
         if (backend) {
+           console.log("poot");
             // Don't pass these to server
             delete options.error;
             delete options.success;
@@ -32,6 +48,7 @@
                     model: model.toJSON(),
                     options: options
                 };
+                console.log("puff");
                 
                 backend.socket.emit('sync', req, function(err, resp) {
                     if (err) {
@@ -70,6 +87,7 @@
             });
         },
         buildBackend: function(collection) {
+                         console.log("buildingbackend2");
            var ready = new Promise();
            var options = collection.backend;
            if (!options) {
@@ -92,10 +110,16 @@
                }
            };
 
-           connected.then(function(socket) {
+           Backbone.io.connected.then(function(socket) {
+              console.log("connected");
+              console.log(backend);
                backend.socket = socket.of(name);
 
+               console.log(name);
+               console.log(backend.channel);
+               console.log(socket);
                backend.socket.emit('listen', backend.channel, function(options) {
+                  console.log("superconnected");
                    backend.options = options;
 
                    backend.socket.on('synced', function(method, resp) {
@@ -113,25 +137,11 @@
        }
     };
     
-    Backbone.Collection = (function(Parent) {
-        // Override the parent constructor
-        var Child = function() {
-            if (this.backend) {
-                this.backend = buildBackend(this);
-            }
-            
-            Parent.apply(this, arguments);
-        };
-        
-        // Inherit everything else from the parent
-        return inherits(Parent, Child, [Mixins]);
-    })(Backbone.Collection);
-    
     Backbone.Model = (function(Parent) {
         // Override the parent constructor
         var Child = function() {
             if (this.backend) {
-                this.backend = buildBackend(this);
+                this.backend = Mixins.buildBackend(this);
             }
             
             Parent.apply(this, arguments);
@@ -159,6 +169,7 @@
         return _.extend(Child, Parent);
     };
     
+    /*
     function buildBackend(collection) {
         var ready = new Promise();
         var options = collection.backend;
@@ -179,7 +190,7 @@
             }
         };
 
-        connected.then(function(socket) {
+        Backbone.io.connected.then(function(socket) {
             backend.socket = socket.of(name);
 
             backend.socket.emit('listen', backend.channel, function(options) {
@@ -198,6 +209,7 @@
         
         return backend;
     };
+    */
 
     function Promise(context) {
         this.context = context || this;

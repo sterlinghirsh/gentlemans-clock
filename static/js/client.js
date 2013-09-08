@@ -1,25 +1,14 @@
-define(["jquery", "underscore", "backbone", "socketio", "backboneio",
+define(["jquery", "underscore", "backbone", 'Custom',
 'collections/games',
 'models/game',
 'views/game-list-view', 'views/new-game-view', 'views/game-view',
 'views/main-menu'],
-function($, _, Backbone, socketio, backboneio,
+function($, _, Backbone, Custom, 
 Games, Game, 
 GameListView, NewGameView, GameView,
 MainMenuView) {
    return {
       initialize: function() {
-         Backbone.io.connect();
-         /*
-         var MyCollection = Backbone.Collection.extend({
-            backend: 'mybackend',
-            initialize: function() {
-               this.bindBackend();
-            }
-         });*/
-
-         //var publicCollection = new MyCollection();
-
          var sharedGameView = null;
          var AppRouter = Backbone.Router.extend({
             routes: {
@@ -36,15 +25,16 @@ MainMenuView) {
                   if (join_code != 'new') {
                      join_code = join_code.toLowerCase();
                      // Load the game.
-                     var newModel = new Game({
+                     Custom.sharedGame = new Game({
                         join_code: join_code
-                        , backend: {name: 'g', channel: join_code}
                         , public: true
                      });
-                     //publicCollection.add(newModel);
-                     newModel.fetch({
+                     Custom.socketConnect();
+
+                     // TODO: Add a loading spinner.
+                     Custom.sharedGame.fetch({
                         success: function() {
-                           sharedGameView.setModel(newModel);
+                           sharedGameView.setModel(Custom.sharedGame);
                         }
                         , error: function() {
                            return that.navigate('joinError', {trigger: true});
@@ -83,8 +73,6 @@ MainMenuView) {
 
          var newGameView = new NewGameView({
             el: $('#newGame'),
-            //publicCollection: publicCollection,
-            //collection: collection,
             gameView: sharedGameView,
             router: app_router
          });
@@ -98,27 +86,6 @@ MainMenuView) {
                bootbox.alert("Join codes must be 5 characters.");
             }
          });
-
-         /*
-         var gameList = new Games;
-         gameList.fetch({
-            success: function(collection, response, options) {
-               var myGameListView = new GameListView({
-                  el: $('#gameList'),
-                  collection: collection,
-                  gameView: sharedGameView
-               });
-               myGameListView.render();
-            },
-            error: function(collection, response, options) {
-                      console.log(JSON.stringify(collection));
-               console.log(JSON.stringify(response));
-               console.log(JSON.stringify(options));
-               console.error("ERROR");
-            }
-         });
-         */
-
       }
    }
 });
