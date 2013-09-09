@@ -208,6 +208,18 @@ body {
 #editPlayerFormHolder #editPlayerForm .row-fluid {
   margin-top: 5px;
 }
+#editPlayerFormHolder #editPlayerForm legend {
+  line-height: 30px;
+  margin-bottom: 5px;
+}
+@media (max-height: 300px) {
+  #editPlayerFormHolder #editPlayerForm .btn {
+    padding: 2px 0;
+  }
+  #editPlayerFormHolder #editPlayerForm .row-fluid {
+    margin-top: 0px;
+  }
+}
 #gameSettingsFormHolder {
   padding: 5px;
   width: 300px;
@@ -271,4 +283,20 @@ body {
 }
 * {
   -webkit-tap-highlight-color: transparent;
+}
+@media (max-height: 300px) {
+  .visible-tall {
+    display: none;
+  }
+  .hidden-short {
+    display: none;
+  }
+}
+@media (min-height: 300px) {
+  .hidden-tall {
+    display: none;
+  }
+  .visible-short {
+    display: none;
+  }
 }

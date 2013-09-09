@@ -181,6 +181,21 @@ body {
       .row-fluid {
          margin-top: 5px;
       }
+
+      legend {
+         line-height: 30px;
+         margin-bottom: 5px;
+      }
+
+      @media (max-height: 300px) {
+         .btn {
+            padding: 2px 0;
+         }
+
+         .row-fluid {
+            margin-top: 0px;
+         }
+      }
    }
 }
 
@@ -252,4 +267,22 @@ body {
 
 * {
    -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-height: 300px) {
+   .visible-tall {
+      display: none;
+   }
+   .hidden-short {
+      display: none;
+   }
+}
+
+@media (min-height: 300px) {
+   .hidden-tall {
+      display: none;
+   }
+   .visible-short {
+      display: none;
+   }
 }
