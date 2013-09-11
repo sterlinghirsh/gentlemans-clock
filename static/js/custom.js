@@ -3,6 +3,7 @@ define(['underscore', 'socketio', 'backbone'], function(_, io, Backbone) {
       socket: null
       , origSync: null
       , sharedGame: null
+      , localGameKey: 'localGame'
       , socketConnect: function() {
          this.socket = io.connect();
          this.origSync = Backbone.sync;
@@ -17,30 +18,6 @@ define(['underscore', 'socketio', 'backbone'], function(_, io, Backbone) {
          Custom.socket.on('error', function(data) {
             console.error(data);
          });
-
-         Backbone.sync = function(method, model, options) {
-            options = _.clone(options) || {};
-
-            var error = options.error || function() {};
-            var success = options.success || function() {};
-            // Don't pass these to server
-            delete options.error;
-            delete options.success;
-            delete options.collection; 
-            var req = {
-               model: model.toJSON(),
-               options: options
-            };
-
-            Custom.socket.emit(method, req, function(err, resp) {
-               if (err) {
-                  console.error(err);
-                  error(err);
-               } else {
-                  success(resp);
-               }
-            });
-         };
       }
       , socketDisconnect: function() {
          if (this.socket !== null) {

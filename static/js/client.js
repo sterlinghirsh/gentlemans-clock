@@ -19,7 +19,19 @@ MainMenuView) {
                , 'game/:join_code': function(join_code) {
                   var that = this;
                   if (join_code == 'new' && (sharedGameView === null || sharedGameView.model === null)) {
-                     return this.navigate('startGame', {trigger: true});
+                     if (localStorage[Custom.localGameKey]) {
+                        try {
+                           Custom.sharedGame = new Game();
+                           Custom.sharedGame.fetch();
+                           sharedGameView.setModel(Custom.sharedGame);
+                        } catch (ex) {
+                           console.error(ex);
+                           localStorage.removeItem(Custom.localGameKey);
+                           return this.navigate('startGame', {trigger: true});
+                        }
+                     } else {
+                        return this.navigate('startGame', {trigger: true});
+                     }
                   }
 
                   if (join_code != 'new') {
@@ -57,19 +69,15 @@ MainMenuView) {
 
          var app_router = new AppRouter;
 
-         Backbone.history.start();
-
          var mainMenuView = new MainMenuView({
             el: $('#main')
          });
 
-         if (sharedGameView === null) {
-            sharedGameView = new GameView({
-               el: $('#gameDetail')
-               , model: null
-               , router: app_router
-            });
-         }
+         sharedGameView = new GameView({
+            el: $('#gameDetail')
+            , model: null
+            , router: app_router
+         });
 
          var newGameView = new NewGameView({
             el: $('#newGame'),
@@ -86,6 +94,8 @@ MainMenuView) {
                bootbox.alert("Join codes must be 5 characters.");
             }
          });
+
+         Backbone.history.start();
       }
    }
 });

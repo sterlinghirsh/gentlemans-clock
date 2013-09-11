@@ -222,6 +222,46 @@ function($, _, Backbone, Custom) {
          players.push(data);
          this.set('players', players);
          return data;
+      }, sync: function(method, model, options) {
+         options = _.clone(options) || {};
+         var error = options.error || function() {};
+         var success = options.success || function() {};
+         if (!model.get('public')) {
+            var result;
+            switch (method) {
+               case 'read':
+                  result = JSON.parse(localStorage[Custom.localGameKey]);
+                  break;
+               case 'create':
+               case 'update': 
+                  result = localStorage[Custom.localGameKey] = JSON.stringify(model.toJSON());
+                  break;
+               case 'delete':
+                  result = localStorage.removeItem(Custom.localGameKey);
+                  break;
+               default:
+                  console.error("Weird sync method: " + method);
+            }
+            return success(result);
+         } else {
+            // Don't pass these to server
+            delete options.error;
+            delete options.success;
+            delete options.collection; 
+            var req = {
+               model: model.toJSON(),
+               options: options
+            };
+
+            Custom.socket.emit(method, req, function(err, resp) {
+               if (err) {
+                  console.error(err);
+                  error(err);
+               } else {
+                  success(resp);
+               }
+            });
+         }
       }
    });
 });

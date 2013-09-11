@@ -54,6 +54,7 @@ _Game, _GameControls, _GameSettings, Custom) {
          }, this);
          this.lastNumPlayers = -1;
          this.lastGuidString = '';
+         
          this.render();
       }
       , updateTimes: function() {
@@ -160,12 +161,8 @@ _Game, _GameControls, _GameSettings, Custom) {
          return this;
       }
       , save: function() {
-         if (this.model.get('public')) {
-            this.render();
-            this.model.save();
-         } else {
-            this.render();
-         }
+         this.model.save();
+         this.render();
       }
       , events: {
          'click .addPlayerButton': function(ev) {
