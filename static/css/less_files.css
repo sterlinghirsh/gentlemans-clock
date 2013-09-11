@@ -53,7 +53,7 @@ body {
 }
 .gameControlsHolder {
   position: absolute;
-  padding: 1px 10px 1px 10px;
+  padding: 1px 5px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -72,7 +72,7 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  padding: 1px 10px 1px 10px;
+  padding: 1px 5px 1px 5px;
   bottom: 102px;
   overflow: auto;
 }
@@ -200,7 +200,7 @@ body {
 #editPlayerFormHolder {
   padding: 5px;
   width: 300px;
-  margin-left: -150px;
+  margin-left: -156px;
 }
 #editPlayerFormHolder #editPlayerForm {
   margin-bottom: 0px;
@@ -212,23 +212,46 @@ body {
   line-height: 30px;
   margin-bottom: 5px;
 }
-@media (max-height: 300px) {
+#editPlayerFormHolder #editPlayerForm .playerInfo {
+  line-height: 40px;
+  font-size: 18px;
+}
+#editPlayerFormHolder #editPlayerForm .playerInfo .playerTime {
+  float: right;
+  margin-right: 1px;
+}
+#editPlayerFormHolder #editPlayerForm .playerInfo .playerTime .hoursInput,
+#editPlayerFormHolder #editPlayerForm .playerInfo .playerTime .minutesInput,
+#editPlayerFormHolder #editPlayerForm .playerInfo .playerTime .secondsInput {
+  width: 32px;
+  margin: 0 0px;
+}
+@media (max-height: 350px) {
   #editPlayerFormHolder #editPlayerForm .btn {
     padding: 2px 0;
   }
   #editPlayerFormHolder #editPlayerForm .row-fluid {
     margin-top: 0px;
   }
+  #editPlayerFormHolder #editPlayerForm input,
+  #editPlayerFormHolder #editPlayerForm select {
+    margin-bottom: 0;
+  }
 }
 #gameSettingsFormHolder {
   padding: 5px;
   width: 300px;
-  margin-left: -150px;
+  margin-left: -156px;
+}
+@media (max-height: 350px) {
+  #gameSettingsFormHolder .btn {
+    padding: 2px 0;
+  }
 }
 .bootbox {
   padding: 5px;
   width: 300px;
-  margin-left: -150px;
+  margin-left: -156px;
   z-index: 1070;
 }
 .bootbox + .modal-backdrop {
@@ -284,15 +307,18 @@ body {
 * {
   -webkit-tap-highlight-color: transparent;
 }
-@media (max-height: 300px) {
+@media (max-height: 350px) {
   .visible-tall {
     display: none;
   }
   .hidden-short {
     display: none;
   }
+  .modal.fade.in {
+    top: 1%;
+  }
 }
-@media (min-height: 300px) {
+@media (min-height: 350px) {
   .hidden-tall {
     display: none;
   }

@@ -1,4 +1,4 @@
-define(["jquery", "underscore", "backbone", 'Custom',
+define(["jquery", "underscore", "backbone", 'custom',
 'collections/games',
 'models/game',
 'views/game-list-view', 'views/new-game-view', 'views/game-view',

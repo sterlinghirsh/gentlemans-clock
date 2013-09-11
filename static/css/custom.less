@@ -1,5 +1,7 @@
 @modalWidth: 300px;
+@modalOuterWidth: 312px;
 @controlsHeight: 102px;
+@shortScreenHeight: 350px;
 
 body {
    background-color: #ddd;
@@ -70,7 +72,7 @@ body {
 
 .gameControlsHolder {
    position: absolute;
-   padding: 1px 10px 1px 10px;
+   padding: 1px 5px;
    left: 0;
    right: 0;
    bottom: 0;
@@ -96,7 +98,7 @@ body {
    top: 0;
    left: 0;
    right: 0;
-   padding: 1px 10px 1px 10px;
+   padding: 1px 5px 1px 5px;
    bottom: @controlsHeight;
    overflow: auto;
 
@@ -173,7 +175,7 @@ body {
 #editPlayerFormHolder {
    padding: 5px;
    width: @modalWidth;
-   margin-left: (-@modalWidth / 2);
+   margin-left: (-@modalOuterWidth / 2);
 
    #editPlayerForm {
       margin-bottom: 0px;
@@ -187,13 +189,32 @@ body {
          margin-bottom: 5px;
       }
 
-      @media (max-height: 300px) {
+      .playerInfo {
+         line-height: 40px;
+         font-size: 18px;
+         
+         .playerTime {
+            float: right;
+            margin-right: 1px;
+
+            .hoursInput, .minutesInput, .secondsInput {
+               width: 32px;
+               margin: 0 0px;
+            }
+         }
+      }
+
+      @media (max-height: @shortScreenHeight) {
          .btn {
             padding: 2px 0;
          }
 
          .row-fluid {
             margin-top: 0px;
+         }
+
+         input, select {
+            margin-bottom: 0;
          }
       }
    }
@@ -202,13 +223,19 @@ body {
 #gameSettingsFormHolder {
    padding: 5px;
    width: @modalWidth;
-   margin-left: (-@modalWidth / 2);
+   margin-left: (-@modalOuterWidth / 2);
+   
+   @media (max-height: @shortScreenHeight) {
+      .btn {
+         padding: 2px 0;
+      }
+   }
 }
 
 .bootbox {
    padding: 5px;
    width: @modalWidth;
-   margin-left: (-@modalWidth / 2);
+   margin-left: (-@modalOuterWidth / 2);
    z-index: 1070;
 }
 
@@ -269,16 +296,20 @@ body {
    -webkit-tap-highlight-color: transparent;
 }
 
-@media (max-height: 300px) {
+@media (max-height: @shortScreenHeight) {
    .visible-tall {
       display: none;
    }
    .hidden-short {
       display: none;
    }
+
+   .modal.fade.in {
+      top: 1%;
+   }
 }
 
-@media (min-height: 300px) {
+@media (min-height: @shortScreenHeight) {
    .hidden-tall {
       display: none;
    }

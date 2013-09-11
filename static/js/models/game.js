@@ -183,7 +183,6 @@ function($, _, Backbone, Custom) {
          });
          this.set({
             state: 'paused'
-            , current_turn: 1
             , players: players
          });
       }

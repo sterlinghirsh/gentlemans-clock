@@ -55,7 +55,6 @@ var validColors = ['red', 'green', 'blue', 'black', 'white', 'yellow', 'pink', '
 db.once('open', function callback() {
    var gameSchema = mongoose.Schema({
       join_code: { type: String, trim: true, required: true, unique: true }
-      , current_turn: { type: Number, min: 1, default: 1 }
       , time_per_game: { type: Number, min: 0, default: 300 }
       , time_per_turn: { type: Number, min: -1, default: 2 }
       , date_created: { type: Date, default: Date.now }
@@ -140,8 +139,7 @@ db.once('open', function callback() {
                 player.turn_time_used == 0 &&
                 player.date_turn_started === null &&
                 player.state == 'waiting' &&
-                gameData.state == 'paused' &&
-                gameData.current_turn == 1) {
+                gameData.state == 'paused') {
                   // We're resetting the player, so don't do anything fancy.
                   resettingGame = true;
                } else if (player.date_turn_started !== null &&
@@ -154,6 +152,7 @@ db.once('open', function callback() {
                 player.state == 'waiting') {
                   // Player just finished a turn.
                   // Reuse this logic for pausing the timer.
+                  /*
                   var timeDiff = (new Date() -
                    dbPlayer.date_turn_started) / 1000;
                   player.turn_time_used = dbPlayer.turn_time_used || 0;
@@ -163,11 +162,7 @@ db.once('open', function callback() {
                      player.game_time_used += player.turn_time_used - gameData.time_per_turn;
                      player.turn_time_used = gameData.time_per_turn;
                   }
-
-                  // Don't do this on pause.
-                  if (playerKey === gameData.players.length - 1) {
-                     ++gameData.current_turn;
-                  }
+                  */
                   player.turn_time_used = 0;
                   player.date_turn_started = null;
                }
@@ -178,7 +173,6 @@ db.once('open', function callback() {
             });
 
             if (gameData.players.length === 0) {
-               gameData.current_turn = 1;
                gameData.state = 'paused';
             }
 
@@ -282,8 +276,7 @@ db.once('open', function callback() {
              player.turn_time_used == 0 &&
              player.date_turn_started === null &&
              player.state == 'waiting' &&
-             gameData.state == 'paused' &&
-             gameData.current_turn == 1) {
+             gameData.state == 'paused') {
                // We're resetting the player, so don't do anything fancy.
                resettingGame = true;
             } else if (player.date_turn_started !== null &&
@@ -306,10 +299,6 @@ db.once('open', function callback() {
                   player.turn_time_used = gameData.time_per_turn;
                }
 
-               // Don't do this on pause.
-               if (playerKey === gameData.players.length - 1) {
-                  ++gameData.current_turn;
-               }
                player.turn_time_used = 0;
                player.date_turn_started = null;
             }
@@ -320,7 +309,6 @@ db.once('open', function callback() {
          });
 
          if (gameData.players.length === 0) {
-            gameData.current_turn = 1;
             gameData.state = 'paused';
          }
 

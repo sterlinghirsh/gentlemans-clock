@@ -14,7 +14,6 @@ define(['jquery', 'underscore', 'backbone', 'custom',
                , time_per_game: parseInt(formData.time_per_game, 10)
                , date_created: new Date
                , date_updated: new Date
-               , current_turn: 1
                , count_up: false
                , public: false
                , players: []

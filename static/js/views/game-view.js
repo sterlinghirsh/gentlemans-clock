@@ -22,6 +22,11 @@ _Game, _GameControls, _GameSettings, Custom) {
          }
          this.refreshInterval = window.setInterval(
           _.bind(this.render, this), this.refreshTime);
+         this.editPlayerView = new EditPlayerView({
+            el: $('#editPlayerFormHolder')
+            , game: this.model
+            , gameView: this
+         });
       }
       , restartInterval: function() {
          if (this.refreshInterval !== null) {
@@ -42,6 +47,7 @@ _Game, _GameControls, _GameSettings, Custom) {
             this.model.off('change');
          }
          this.model = model;
+         this.editPlayerView.setGame(model);
          this.model.on('change', this.render, this);
          this.model.on('change:join_code', function() {
             that.options.router.navigate('game/' + this.model.get('join_code'));
@@ -165,12 +171,7 @@ _Game, _GameControls, _GameSettings, Custom) {
             ev.preventDefault();
             var player = this.model.addNewPlayer();
             this.save();
-            new EditPlayerView({
-               el: $('#editPlayerFormHolder')
-               , model: player
-               , game: this.model
-               , gameView: this
-            });
+            this.editPlayerView.showPlayer(player);
          }
          , 'click .nextPlayerButton': function(ev) {
             ev.preventDefault();
@@ -253,12 +254,7 @@ _Game, _GameControls, _GameSettings, Custom) {
                console.error("Null player clicked.");
                return;
             }
-            new EditPlayerView({
-               el: $('#editPlayerFormHolder')
-               , model: player
-               , game: this.model
-               , gameView: this
-            });
+            this.editPlayerView.showPlayer(player);
          }
          , 'click .gameSettingsButton': function(ev) {
             this.$('#gameSettingsFormHolder').html(this.settingsTemplate(this.model.toJSON())).modal();

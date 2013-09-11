@@ -49,28 +49,40 @@ define(['underscore', 'socketio', 'backbone'], function(_, io, Backbone) {
             Backbone.sync = Custom.origSync;
          }
       }
-      , displayTime: function (timeInSeconds) {
+      , displayTime: function(timeInSeconds) {
+         var time = Custom.timeDisplayStruct(Custom.secondsToStruct(timeInSeconds));
+
+         var timeString = time.mins + ":" + time.secs;
+
+         if (time.hours > 0) {
+            timeString = time.hours + ":" + timeString;
+         }
+
+         return timeString;
+      }
+      , secondsToStruct: function(timeInSeconds) {
          timeInSeconds = Math.max(0, timeInSeconds);
          var hours = Math.floor(timeInSeconds / 3600);
          timeInSeconds -= hours * 3600;
          var mins = Math.floor(timeInSeconds / 60);
 
-         if (mins < 10 && hours > 0) {
-            mins = "0" + mins;
-         }
          var secs = Math.floor(timeInSeconds % 60);
 
-         if (secs < 10) {
-            secs = "0" + secs;
+         return {hours: hours, mins: mins, secs: secs};
+      }
+      , timeDisplayStruct: function(time) {
+         var newTime = _.clone(time);
+         if (newTime.mins < 10 && newTime.hours > 0) {
+            newTime.mins = "0" + newTime.mins;
          }
-
-         var timeString = mins + ":" + secs;
-
-         if (hours > 0) {
-            timeString = hours + ":" + timeString;
+         
+         if (newTime.secs < 10) {
+            newTime.secs = "0" + newTime.secs;
          }
-
-         return timeString;
+         return newTime;
+      }
+      , timeStructToSeconds: function(time) {
+         return time.hours * 3600 + time.mins * 60 + time.secs;
       }
       , makeid: function(size, alpha) {
          var text = "";
