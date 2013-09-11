@@ -161,6 +161,7 @@ _Game, _GameControls, _GameSettings, Custom) {
       }
       , save: function() {
          if (this.model.get('public')) {
+            this.render();
             this.model.save();
          } else {
             this.render();
