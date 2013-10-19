@@ -385,7 +385,7 @@ db.once('open', function callback() {
    server.listen(port);
    
    io.configure(function() {
-      io.set('transports', ['xhr-polling']);
+//      io.set('transports', ['xhr-polling']);
       io.set('polling duration', 10);
    });
 
