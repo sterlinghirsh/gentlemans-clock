@@ -12,11 +12,7 @@ MainMenuView) {
          var sharedGameView = null;
          var AppRouter = Backbone.Router.extend({
             routes: {
-               'startGame': function() {
-                  $('#main > div').addClass('hidden');
-                  $('#newGame').removeClass('hidden');
-               }
-               , 'game/:join_code': function(join_code) {
+               'game/:join_code': function(join_code) {
                   var that = this;
                   if (join_code == 'new' && (sharedGameView === null || sharedGameView.model === null)) {
                      if (localStorage[Custom.localGameKey]) {
@@ -27,10 +23,12 @@ MainMenuView) {
                         } catch (ex) {
                            console.error(ex);
                            localStorage.removeItem(Custom.localGameKey);
-                           return this.navigate('startGame', {trigger: true});
+                           $('#newGame').removeClass('hidden').modal();
+                           return;
                         }
                      } else {
-                        return this.navigate('startGame', {trigger: true});
+                        $('#newGame').removeClass('hidden').modal();
+                        return
                      }
                   }
 
@@ -93,6 +91,11 @@ MainMenuView) {
             } else {
                bootbox.alert("Join codes must be 5 characters.");
             }
+         });
+
+         $('.startGame').click(function(ev) {
+            ev.preventDefault();
+            $('#newGame').removeClass('hidden').modal();
          });
 
          Backbone.history.start();

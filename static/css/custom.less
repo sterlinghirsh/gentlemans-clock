@@ -172,6 +172,11 @@ body {
    }
 }
 
+.hoursInput, .minutesInput, .secondsInput {
+   width: 32px;
+   margin: 0 0px;
+}
+
 #editPlayerFormHolder {
    padding: 5px;
    width: @modalWidth;
@@ -196,11 +201,6 @@ body {
          .playerTime {
             float: right;
             margin-right: 1px;
-
-            .hoursInput, .minutesInput, .secondsInput {
-               width: 32px;
-               margin: 0 0px;
-            }
          }
       }
 
@@ -315,5 +315,14 @@ body {
    }
    .visible-short {
       display: none;
+   }
+}
+
+#newGame {
+   padding: 5px;
+   width: @modalWidth;   
+   margin-left: (-@modalOuterWidth / 2);
+   .control-label {
+      font-weight: bold;
    }
 }

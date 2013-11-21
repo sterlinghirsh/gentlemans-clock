@@ -197,6 +197,12 @@ body {
   border-color: #cc33cc;
   color: #ffffff;
 }
+.hoursInput,
+.minutesInput,
+.secondsInput {
+  width: 32px;
+  margin: 0 0px;
+}
 #editPlayerFormHolder {
   padding: 5px;
   width: 300px;
@@ -219,12 +225,6 @@ body {
 #editPlayerFormHolder #editPlayerForm .playerInfo .playerTime {
   float: right;
   margin-right: 1px;
-}
-#editPlayerFormHolder #editPlayerForm .playerInfo .playerTime .hoursInput,
-#editPlayerFormHolder #editPlayerForm .playerInfo .playerTime .minutesInput,
-#editPlayerFormHolder #editPlayerForm .playerInfo .playerTime .secondsInput {
-  width: 32px;
-  margin: 0 0px;
 }
 @media (max-height: 350px) {
   #editPlayerFormHolder #editPlayerForm .btn {
@@ -325,4 +325,12 @@ body {
   .visible-short {
     display: none;
   }
+}
+#newGame {
+  padding: 5px;
+  width: 300px;
+  margin-left: -156px;
+}
+#newGame .control-label {
+  font-weight: bold;
 }
