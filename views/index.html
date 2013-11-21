@@ -152,24 +152,36 @@
             <form id="newGameForm">
                <fieldset>
                   <h3>Start a new game</h3>
-                  <div class="control-group">
-                     <label class="control-label" for="time_per_turn">Time per turn</label>
-                     <div class="controls">
-                        <span class="time_per_turn">
-                           <input type="number" max="99" min="0" class="hoursInput" name="hours_per_turn" value="0"
-                           >:<input type="number" max="59" min="0" class="minutesInput" name="mins_per_turn" value="00"
-                           >:<input type="number" max="59" min="0" class="secondsInput" name="secs_per_turn" value="05">
-                        </span>
-                     </div>
+                  <div class="control-group directionControls">
+                     <label>
+                        <input type="radio" class="radio" name="clockDirection" value="down" checked="checked">
+                        Count down
+                     </label>
+                     <label>
+                        <input type="radio" class="radio" name="clockDirection" value="up">
+                        Count up
+                     </label>
                   </div>
-                  <div class="control-group">
-                     <label class="control-label" for="time_per_game">Time per game</label>
-                     <div class="controls">
-                        <span class="time_per_turn">
-                           <input type="number" max="99" min="0" class="hoursInput" name="hours_per_game" value="0"
-                           >:<input type="number" max="59" min="0" class="minutesInput" name="mins_per_game" value="15"
-                           >:<input type="number" max="59" min="0" class="secondsInput" name="secs_per_game" value="00">
-                        </span>
+                  <div class="clockTimeInputs">
+                     <div class="control-group">
+                        <label class="control-label" for="time_per_turn">Time per turn</label>
+                        <div class="controls">
+                           <span class="time_per_turn">
+                              <input type="number" max="99" min="0" class="hoursInput" name="hours_per_turn" value="0"
+                              >:<input type="number" max="59" min="0" class="minutesInput" name="mins_per_turn" value="00"
+                              >:<input type="number" max="59" min="0" class="secondsInput" name="secs_per_turn" value="05">
+                           </span>
+                        </div>
+                     </div>
+                     <div class="control-group">
+                        <label class="control-label" for="time_per_game">Time per game</label>
+                        <div class="controls">
+                           <span class="time_per_turn">
+                              <input type="number" max="99" min="0" class="hoursInput" name="hours_per_game" value="0"
+                              >:<input type="number" max="59" min="0" class="minutesInput" name="mins_per_game" value="15"
+                              >:<input type="number" max="59" min="0" class="secondsInput" name="secs_per_game" value="00">
+                           </span>
+                        </div>
                      </div>
                   </div>
                   <div class="row-fluid">

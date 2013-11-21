@@ -334,3 +334,17 @@ body {
 #newGame .control-label {
   font-weight: bold;
 }
+#newGame label {
+  display: inline-block;
+  margin-bottom: 0px;
+}
+#newGame label .radio {
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+#newGame .control-group {
+  margin-bottom: 5px;
+}
+#newGame .directionControls label {
+  margin-right: 10px;
+}

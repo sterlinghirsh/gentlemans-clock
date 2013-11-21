@@ -56,18 +56,36 @@ function($, _, Backbone, Custom) {
          if (_.isUndefined(now)) {
             now = new Date;
          }
-         var gameTimeLeft = this.get('time_per_game') - player.game_time_used;
-         var turnTimeLeft = this.get('time_per_turn') - player.turn_time_used;
+         var gameTimeLeft;
+         var turnTimeLeft;
+
+         if (this.get('count_up')) {
+            gameTimeLeft = player.game_time_used;
+            turnTimeLeft = player.turn_time_used;
+         } else {
+            gameTimeLeft = this.get('time_per_game') - player.game_time_used;
+            turnTimeLeft = this.get('time_per_turn') - player.turn_time_used;
+         }
+
          if (player.date_turn_started !== null) {
             // Used to Math.floor here.
             var timeDiff = (now - serverToLocal(player.date_turn_started)) / 1000;
             if (this.get('state') == 'active') {
-               turnTimeLeft -= timeDiff;
+               if (this.get('count_up')) {
+                  turnTimeLeft += timeDiff;
+               } else {
+                  turnTimeLeft -= timeDiff;
+               }
             }
-            turnTimeLeft = Math.min(this.get('time_per_turn'), turnTimeLeft);
-            if (turnTimeLeft < 0) {
+
+            if (this.get('count_up')) {
                gameTimeLeft += turnTimeLeft;
-               turnTimeLeft = 0;
+            } else {
+               turnTimeLeft = Math.min(this.get('time_per_turn'), turnTimeLeft);
+               if (turnTimeLeft < 0) {
+                  gameTimeLeft += turnTimeLeft;
+                  turnTimeLeft = 0;
+               }
             }
          };
          return {gameTimeLeft: gameTimeLeft, turnTimeLeft: turnTimeLeft};
@@ -106,7 +124,7 @@ function($, _, Backbone, Custom) {
             } else if (player.state == 'playing') {
                player.state = 'waiting';
                if (player.date_turn_started !== null) {
-                  // This should roughtly match code in
+                  // This should roughly match code in
                   // the put handler server side.
                   // Used to Math.floor here.
                   var timeDiff = (new Date() - 
@@ -119,7 +137,9 @@ function($, _, Backbone, Custom) {
                      player.turn_time_used = 0;
                   }
                   player.turn_time_used += timeDiff;
-                  if (player.turn_time_used > time_per_turn) {
+                  if (game.get('count_up')) {
+                     player.game_time_used += player.turn_time_used;
+                  } else if (player.turn_time_used > time_per_turn) {
                      player.game_time_used += player.turn_time_used - time_per_turn;
                      player.turn_time_used = time_per_turn;
                   }

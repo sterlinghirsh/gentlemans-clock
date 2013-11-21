@@ -81,7 +81,6 @@ define(['jquery', 'underscore', 'backbone', 'bootbox',
          }
          , 'click .movePlayerDownButton': function(ev) {
             ev.preventDefault();
-            // TODO: Why does moving the active player copy his score to other players?
             var players = this.options.game.get('players');
             var keyToMove = null;
             for (var i = 0; i < players.length; ++i) {
@@ -166,9 +165,14 @@ define(['jquery', 'underscore', 'backbone', 'bootbox',
                         , mins: parseInt(data.mins, 10)
                         , secs: parseInt(data.secs, 10)
                      };
-                     players[i].game_time_used = gameTime - Custom.timeStructToSeconds(timeData);
-                     if (players[i].state === 'playing') {
-                        players[i].date_turn_started = localToServer(new Date());
+                     if (this.options.game.get('count_up')) {
+                        players[i].game_time_used = Custom.timeStructToSeconds(timeData);
+                     } else {
+                        players[i].game_time_used = gameTime - Custom.timeStructToSeconds(timeData);
+                        
+                        if (players[i].state === 'playing') {
+                           players[i].date_turn_started = localToServer(new Date());
+                        }
                      }
                   }
                   break;

@@ -24,7 +24,7 @@ define(['jquery', 'underscore', 'backbone', 'custom',
                , time_per_game: Custom.timeStructToSeconds(time_per_game_data)
                , date_created: new Date
                , date_updated: new Date
-               , count_up: false
+               , count_up: formData.clockDirection == 'up'
                , public: false
                , players: []
                , join_code: null
@@ -35,6 +35,14 @@ define(['jquery', 'underscore', 'backbone', 'custom',
             that.options.gameView.setModel(Custom.sharedGame);
             this.$el.modal('hide');
             this.options.router.navigate('game/new', {trigger: true});
+         }
+         , 'change .radio': function(ev) {
+            var val = $('input:radio[name=clockDirection]:checked').val();
+            if (val === 'up') {
+               $('.clockTimeInputs').addClass('hidden');
+            } else {
+               $('.clockTimeInputs').removeClass('hidden');
+            }
          }
       }
    });
