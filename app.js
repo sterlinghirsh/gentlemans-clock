@@ -2,6 +2,11 @@ var express = require('express');
 var mongoose = require('mongoose');
 var _ = require('underscore');
 var cons = require('consolidate');
+var validate = require('./validate');
+
+// Last resort: log and keep serving rather than exit on a stray error.
+process.on('uncaughtException', function(err) { console.error('uncaughtException:', err); });
+process.on('unhandledRejection', function(err) { console.error('unhandledRejection:', err); });
 
 var port = process.env.PORT || 3000;
 var mongolaburi = process.env.MONGOLAB_URI || 'mongodb://localhost/gameclock';
@@ -9,7 +14,7 @@ var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 
-var maxPlayerLength = 12;
+var maxPlayerLength = validate.maxPlayerLength;
 
 
 function displayTime(timeInSeconds) {
@@ -46,7 +51,7 @@ function makeid(size) {
    return text;
 }
 
-var validColors = ['red', 'green', 'blue', 'black', 'white', 'yellow', 'pink', 'tan', 'gray'];
+var validColors = validate.validColors;
 
 mongoose.connect(mongolaburi).then(function() {
    server.listen(port);
@@ -81,7 +86,9 @@ mongoose.connect(mongolaburi).then(function() {
 
    io.sockets.on('connection', function(socket) {
       var createGame = function(req, respond) {
-         var newGame = new Game(req.model);
+         var parsed = validate.gameData(req.model);
+         if (parsed.error) { return respond({error: parsed.error}); }
+         var newGame = new Game(parsed.data);
          newGame.date_created = newGame.date_updated = Date.now();
          newGame.join_code = makeid(5);
          // TODO: Check to make sure we don't have any games with that join_code.
@@ -93,11 +100,11 @@ mongoose.connect(mongolaburi).then(function() {
          });
       };
 
-      socket.on('create', createGame);
+      socket.on('create', validate.safeHandler('create', createGame));
 
-      socket.on('read', function(req, respond) {
-         var join_code = req.model.join_code.toLowerCase();
-         if (join_code.length != 5) {
+      socket.on('read', validate.safeHandler('read', function(req, respond) {
+         var join_code = validate.joinCode(req.model.join_code);
+         if (join_code === null) {
             respond({error: "Invalid join code."});
             return;
          }
@@ -113,18 +120,24 @@ mongoose.connect(mongolaburi).then(function() {
             console.error(err);
             respond({error: "Server error."}, null);
          });
-      });
+      }));
 
-      socket.on('update', function(req, respond) {
-         var join_code = req.model.join_code.toLowerCase();
+      socket.on('update', validate.safeHandler('update', function(req, respond) {
+         var join_code = validate.joinCode(req.model.join_code);
+         if (join_code === null) {
+            respond({error: "Invalid join code."});
+            return;
+         }
+         var parsed = validate.gameData(req.model);
+         if (parsed.error) { return respond({error: parsed.error}); }
          Game.findOne({join_code: join_code}).then(function(game) {
             var resettingGame = false;
-            var gameData = req.model;
-            socket.join(join_code);
-            // TODO: Combine this with the newgame function.
+            var gameData = parsed.data;
+            // An update never creates a game (the client creates first).
             if (game === null) {
-               return createGame(req, respond);
+               return respond({error: "Game not found."}, null);
             }
+            socket.join(join_code);
 
             // TODO: Clean up this goofy logic.
             gameData.players = _.map(gameData.players, function(player, playerKey) {
@@ -188,7 +201,7 @@ mongoose.connect(mongolaburi).then(function() {
             console.error(err);
             respond({error: "Server error."}, null);
          });
-      });
+      }));
    });
 
    // Setup HTML serving.
