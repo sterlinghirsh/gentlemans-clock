@@ -168,12 +168,12 @@ fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
   border-radius: 28px; background: var(--surface); overflow: hidden; cursor: pointer; text-align: left;
   touch-action: manipulation; isolation: isolate;
 }
-.layers { position: absolute; inset: 0; }
+.layers { position: absolute; inset: 0; contain: strict; }
 .layer {
   position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center;
   padding: 24px 24px 56px; opacity: 0; transform: translate3d(0, 10%, 0);
   transition: opacity var(--t-turn) var(--ease), transform var(--t-turn) var(--ease);
-  pointer-events: none;
+  pointer-events: none; contain: strict;
 }
 .layer.on { opacity: 1; transform: none; }
 .wash, .wash-strong { position: absolute; inset: 0; background: var(--pc); z-index: -1; }
@@ -215,7 +215,7 @@ fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
 .prow.on::before { opacity: 0.12; }
 .dot { position: relative; width: 14px; height: 14px; border-radius: 50%; background: var(--pc); }
 .pname { position: relative; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ptime { position: relative; font: 700 24px/1 var(--display); font-variant-numeric: tabular-nums; color: var(--muted); }
+.ptime { position: relative; contain: layout paint; min-width: 4.2ch; text-align: right; font: 700 24px/1 var(--display); font-variant-numeric: tabular-nums; color: var(--muted); }
 .prow.on .ptime { color: var(--text); }
 .prow.out .ptime { color: var(--danger); }
 

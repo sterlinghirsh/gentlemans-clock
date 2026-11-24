@@ -232,7 +232,7 @@ function renderState() {
   setClass($('game'), 'running', running);
   setText($('playLabel'), running ? 'Pause' : active === null ? 'Start' : 'Resume');
   const hint = !shown ? '' : running
-    ? (seat && shown.guid !== seat ? `Waiting for ${shown.name}` : 'Tap anywhere when the turn is done')
+    ? (seat ? (shown.guid === seat ? 'Your turn · tap anywhere when done' : `Waiting for ${shown.name}`) : 'Tap anywhere when the turn is done')
     : active === null ? `Tap to start · ${shown.name} first` : 'Paused · tap to resume';
   setText($('stageHint'), hint);
   $('stage').setAttribute('aria-label', !shown ? 'No players' : running ? `${shown.name}’s turn. Next player` : 'Start the clock');
