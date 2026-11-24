@@ -5,8 +5,20 @@ define(['underscore', 'socketio', 'backbone'], function(_, io, Backbone) {
       , sharedGame: null
       , localGameKey: 'localGame'
       , socketConnect: function() {
-         this.socket = io.connect();
+         // The realtime server: the build writes window.GC_SERVER (its origin); without it, this page's origin.
+         this.socket = io(window.GC_SERVER || undefined, {path: '/ws', addTrailingSlash: false});
          this.origSync = Backbone.sync;
+
+         // Clock skew (local - server), measured at each connect from the round trip's midpoint.
+         Custom.socket.on('connect', function() {
+            var sent = Date.now();
+            Custom.socket.emit('time', function(err, serverNow) {
+               if (!err && typeof serverNow === 'number') {
+                  var now = Date.now();
+                  window.serverTimeDiff = Math.round((sent + now) / 2 - serverNow);
+               }
+            });
+         });
          
          Custom.socket.on('update', function(data) {
             if (Custom.sharedGame !== null) {

@@ -1,25 +1,24 @@
 {
-   "name": "gameclock",
+   "name": "gentlemans-clock",
    "description": "Multiplayer game clock",
-   "version": "0.0.1",
+   "version": "0.1.0",
    "private": true,
    "engines": {
-      "node": ">=20"
+      "node": ">=24"
    },
    "scripts": {
-      "start": "node app.js",
+      "start": "node server/main.js",
+      "dev": "npm run build && STATIC_ROOT=dist node server/main.js",
+      "build": "node scripts/build-client.mjs",
+      "bundle": "node scripts/bundle-server.mjs",
       "test": "node --test test/*.test.js"
    },
    "dependencies": {
-      "consolidate": "^1.0.4",
-      "express": "^4.21.2",
-      "mongoose": "^8.9.0",
-      "socket.io": "^4.8.1",
-      "underscore": "^1.13.7"
+      "socket.io": "^4.8.1"
    },
    "devDependencies": {
+      "esbuild": "^0.25.0",
       "less": "^4.2.0",
-      "mongodb-memory-server": "^11.4.0",
       "requirejs": "^2.3.7",
       "socket.io-client": "^4.8.4"
    }

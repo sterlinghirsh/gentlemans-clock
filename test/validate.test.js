@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const v = require('../validate');
+const v = require('../server/validate');
 
 test('joinCode accepts 5 letters only', () => {
    assert.strictEqual(v.joinCode('ABCDE'), 'abcde');
