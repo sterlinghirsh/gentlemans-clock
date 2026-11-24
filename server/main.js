@@ -34,7 +34,7 @@ process.on('SIGINT', shutdown);
 
 var TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png',
    '.svg': 'image/svg+xml', '.woff': 'font/woff', '.ttf': 'font/ttf', '.eot': 'application/vnd.ms-fontobject',
-   '.otf': 'font/otf', '.txt': 'text/plain' };
+   '.otf': 'font/otf', '.txt': 'text/plain', '.woff2': 'font/woff2', '.json': 'application/json' };
 
 function serveStatic(req, res, pathname) {
    var root = path.resolve(STATIC_ROOT);

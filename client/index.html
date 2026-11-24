@@ -1,215 +1,240 @@
 <!DOCTYPE html>
-<html>
-   <head>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta charset="utf-8" />
-      <title>Gentleman's Clock: A networked game timer for any number of players</title>
-      <link rel="stylesheet" type="text/css" href="css/all.css?v=%BUILD_ID%">
-      <script type="text/javascript">
-         // Local time - server time.
-         Date.now||(Date.now=function(){return+new Date});
-         // Set from the server over the socket when a game goes public (custom.js); 0 until then.
-         window.serverTimeDiff = 0;
-         window.GC_SERVER = %GC_SERVER%;
-         function serverToLocal(date) {
-            return new Date(new Date(date).getTime() + window.serverTimeDiff);
-         }
-         function localToServer(date) {
-            return new Date(new Date(date).getTime() - window.serverTimeDiff);
-         }
-      </script>
-   </head>
-   <body>
-      <div id="main" class="container-fluid">
-         <div id="mainMenu" class="hidden">
-            <div class="row-fluid">
-               <div class="span12">
-                  <div class="mainTitle">
-                     <h3>
-                        <span class="inTitle">G</span
-                        ><span class="outTitle">entle</span
-                        ><span class="inTitle">m</span
-                        ><span class="outTitle">an's </span
-                        ><span class="inTitle">Cl</span
-                        ><span class="outTitle">oc</span
-                        ><span class="inTitle">k</span>
-                     </h3>
-                     <h2>
-                        <span class="inTitle">G</span
-                        ><span class="outTitle">a</span
-                        ><span class="inTitle">m</span
-                        ><span class="outTitle">e</span
-                        ><span class="inTitle">Cl</span
-                        ><span class="outTitle">oc</span
-                        ><span class="inTitle">k</span>
-                     </h2>
-                     <h4><a href="http://gmclk.com">(gmclk.com)</a></h4>
-                  </div>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="A game clock (chess clock) for any number of players, on one phone or many.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="GM Clock">
+<title>Gentleman's Clock</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preload" href="fonts/barlow-condensed-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css?v=%BUILD_ID%">
+<script>window.GC_SERVER = %GC_SERVER%;</script>
+<script defer src="app.js?v=%BUILD_ID%"></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-next" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-prev" viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V6M6 11l6-6 6 6"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v13M6 13l6 6 6-6"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M5 13v6h14v-6"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  </defs>
+</svg>
 
-               </div>
-            </div>
-            <div class="row-fluid">
-               <div class="span12">
-                  <a class="btn btn-primary startGame" href="#startGame">
-                     <i class="icon-time"></i>
-                     Start
-                  </a>
-               </div>
-            </div>
-            <div class="row-fluid">
-               <div class="span12">
-                  <form id="joinGameForm" class="joinGame">
-                     <fieldset>
-                        <div class="input-append">
-                           <input type="text" name="joinCode" id="joinCodeInput" class="input-small" placeholder="Join Code" maxlength="5">
-                           <button class="btn btn-success btn-large">
-                              <i class="icon-group"></i>
-                              Join
-                           </button>
-                        </div>
-                     </fieldset>
-                  </form>
-               </div>
-            </div>
-            <div class="row-fluid">
-               <div class="span12">
-                  <h3>About</h3>
-                  <p>
-                     Gentleman's Clock is a free, online
-                     <a href="http://en.wikipedia.org/wiki/Game_clock">game timer (i.e. chess clock)</a>
-                     for any number of players across multiple computers, 
-                     tablets, or phones.
-                  </p>
-                  <h3>Usage</h3>
-                  <p>
-                  Click Start to set up a new timer.
-                  Select the time per turn and time per game.
-                  Each player's time per turn resets at the beginning of their turn, but
-                  a player's time per game never resets.
-                  Time per game doesn't start counting down until turn time runs out.
-                  </p>
-                  <p>
-                  To share the game with other devices, click the options (gear) button, then the Make Public button.
-                  Other players may join by clicking on the game url or entering the join code at the main screen.
-                  </p>
-                  <h3>Time Suggestions</h3>
-                  <p>
-                  Time per turn is good for games that have long turns with potentially several actions.
-                  Time per game is good for games that have shorter turns where most of the time is spent thinking, like chess.
-                  A mix of the two is usually helpful to prevent a player from running down the clock by making fast, reckless moves.
-                  </p>
-                  <p>
-                  Chess tournaments often include 5 seconds of time per turn in addition to 45 or more minutes per game.
-                  Faster games of chess may use 10 minutes per game and 2 seconds per turn.
-                  </p>
-                  <h3>The Name</h3>
-                  <p>
-                  The name Gentleman's Clock is in the same vein as a Gentleman's Bet:
-                  </p>
-                  <blockquote>
-                     "An arrangement or understanding which is based upon the trust of both or all parties, rather than being legally binding."
-                  </blockquote>
-                  <p>
-                  Once, while I took too long in a game, my friend said 
-                  "Tick... tock... gentleman's clock."
-                  I thought it was a funny, so I decided that's what I'd name this project.
-                  </p>
-                  <h3>Author</h3>
-                  <p>
-                  My name is <a href="http://sterlinghirsh.com">Sterling Hirsh</a>. I'm a web developer living in Louisville, Kentucky.
-                  If you have any questions, comments, suggestions or bug reports, <a href="mailto:sterling@sterlinghirsh.com">let me know!</a>
-                  </p>
-                  <h3>Source Code</h3>
-                  <p>
-                  This project is open source. The code is available and
-                  your contributions are welcome here:
-                  <a href="https://github.com/sterlinghirsh/gentlemans-clock">Gentleman's Clock on GitHub</a>
-                  </p>
-               </div>
-            </div>
-         </div>
-         <div id="joinError" class="hidden">
-            <div class="row-fluid">
-               <div class="span12">
-                  <div class="alert alert-block alert-error fade in">
-                     <h4 class="alert-heading">Error joining game</h4>
-                     <p>
-                        The requested game could not be joined.
-                        The join code is probably invalid, but there might be a problem with the server.
-                     </p>
-                  </div>
-               </div>
-            </div>
-            <div class="row-fluid">
-               <div class="span12">
-                  <a href="#" class="btn btn-danger btn-block">Main Menu</a>
-               </div>
-            </div>
-         </div>
-         <div id="gameList" class="hidden"></div>
-         <div id="gameDetail" class="hidden">
-            <div class="gameDisplay"></div>
-            <div class="gameControlsHolder"></div>
-            <div id="editPlayerFormHolder" class="modal hide fade" data-backdrop="true">
-               <form id="editPlayerForm">
-               </form>
-            </div>
-            <div id="gameSettingsFormHolder" class="modal hide fade" data-backdrop="true">
-            </div>
-         </div>
-         <div id="newGame" class="modal hide fade" data-backdrop="true">
-            <form id="newGameForm">
-               <fieldset>
-                  <h3>Start a new game</h3>
-                  <div class="control-group directionControls">
-                     <label>
-                        <input type="radio" class="radio" name="clockDirection" value="down" checked="checked">
-                        Count down
-                     </label>
-                     <label>
-                        <input type="radio" class="radio" name="clockDirection" value="up">
-                        Count up
-                     </label>
-                  </div>
-                  <div class="clockTimeInputs">
-                     <div class="control-group">
-                        <label class="control-label" for="time_per_turn">Time per turn</label>
-                        <div class="controls">
-                           <span class="time_per_turn">
-                              <input type="number" max="99" min="0" class="hoursInput" name="hours_per_turn" value="0"
-                              >:<input type="number" max="59" min="0" class="minutesInput" name="mins_per_turn" value="00"
-                              >:<input type="number" max="59" min="0" class="secondsInput" name="secs_per_turn" value="05">
-                           </span>
-                        </div>
-                     </div>
-                     <div class="control-group">
-                        <label class="control-label" for="time_per_game">Time per game</label>
-                        <div class="controls">
-                           <span class="time_per_turn">
-                              <input type="number" max="99" min="0" class="hoursInput" name="hours_per_game" value="0"
-                              >:<input type="number" max="59" min="0" class="minutesInput" name="mins_per_game" value="15"
-                              >:<input type="number" max="59" min="0" class="secondsInput" name="secs_per_game" value="00">
-                           </span>
-                        </div>
-                     </div>
-                  </div>
-                  <div class="row-fluid">
-                     <div class="span3">
-                        <a class="btn btn-warning btn-block btn-large" data-dismiss="modal" href="#">
-                           <i class="icon-reply"></i>
-                        </a>
-                     </div>
-                     <div class="span9">
-                        <button class="btn btn-success btn-block btn-large">
-                           <i class="icon-arrow-right"></i>
-                           Create game!
-                        </button>
-                     </div>
-                  </div>
-               </fieldset>
-            </form>
-         </div>
+<!-- Home -->
+<main id="home" class="view" hidden>
+  <div class="home-inner">
+    <h1 class="wordmark">Gentleman’s <span>Clock</span></h1>
+    <p class="lede">A game clock for any number of players, on one phone or many.</p>
+    <div class="home-actions">
+      <a class="btn btn-primary btn-xl" href="#new">New game</a>
+      <a class="btn btn-quiet btn-xl" id="resume" href="#game/new" hidden>Resume saved game</a>
+      <form id="joinForm" class="join" autocomplete="off">
+        <label for="joinCode" class="label">Join a game</label>
+        <div class="join-row">
+          <input id="joinCode" name="code" class="input code-input" autocapitalize="characters"
+                 spellcheck="false" maxlength="5" placeholder="Code" aria-describedby="joinHelp">
+          <button class="btn btn-secondary">Join</button>
+        </div>
+        <p id="joinHelp" class="help">Five letters, from the phone that shared the game.</p>
+      </form>
+    </div>
+    <section class="about" aria-label="About">
+      <details>
+        <summary>How it works</summary>
+        <p>Set the time per turn and the time per game. Each player’s turn time starts fresh every turn; their game
+          time never resets, and it only starts running once the turn time is used up.</p>
+        <p>To share a game with other phones, open the menu and choose Make public. Others join with the link or
+          the five-letter code on this screen.</p>
+      </details>
+      <details>
+        <summary>Choosing times</summary>
+        <p>Time per turn suits games with long turns of several actions. Time per game suits games with short turns
+          where most of the time goes to thinking, like chess. A mix of the two stops a player from running down
+          the clock with fast, reckless moves.</p>
+        <p>Chess tournaments often give 5 seconds per turn on top of 45 minutes or more per game. Faster chess
+          might use 10 minutes per game and 2 seconds per turn.</p>
+      </details>
+      <details>
+        <summary>The name</summary>
+        <p>Gentleman’s Clock is in the same vein as a gentleman’s bet: an arrangement based on the trust of
+          everyone involved rather than anything binding. Once, while I took too long in a game, a friend said
+          “Tick… tock… gentleman’s clock.” I thought it was funny, so that became the name.</p>
+      </details>
+      <details>
+        <summary>Author and source</summary>
+        <p>Made by <a href="https://sterlinghirsh.com">Sterling Hirsh</a>. Questions, suggestions or bugs:
+          <a href="mailto:sterling@sterlinghirsh.com">let me know</a>. The code is open source:
+          <a href="https://github.com/sterlinghirsh/gentlemans-clock">Gentleman’s Clock on GitHub</a>.</p>
+      </details>
+    </section>
+  </div>
+</main>
+
+<!-- New game -->
+<main id="newGame" class="view" hidden>
+  <header class="topbar">
+    <a class="icon-btn" href="#" aria-label="Back"><svg><use href="#i-back"/></svg></a>
+    <h2 class="topbar-title">New game</h2>
+  </header>
+  <form id="newGameForm" class="form">
+    <fieldset class="segmented">
+      <legend class="label">Clock</legend>
+      <label><input type="radio" name="dir" value="down" checked><span>Count down</span></label>
+      <label><input type="radio" name="dir" value="up"><span>Count up</span></label>
+    </fieldset>
+    <div class="times">
+      <fieldset class="presets">
+        <legend class="label">Quick picks</legend>
+        <button type="button" class="chip" data-turn="5" data-game="900">15 min + 5 s</button>
+        <button type="button" class="chip" data-turn="2" data-game="600">10 min + 2 s</button>
+        <button type="button" class="chip" data-turn="5" data-game="2700">45 min + 5 s</button>
+        <button type="button" class="chip" data-turn="60" data-game="0">60 s turns</button>
+      </fieldset>
+      <fieldset class="duration">
+        <legend class="label">Time per turn</legend>
+        <div class="hms">
+          <label><input class="input" type="number" inputmode="numeric" min="0" max="99" name="turn_h" value="0"><span>h</span></label>
+          <label><input class="input" type="number" inputmode="numeric" min="0" max="59" name="turn_m" value="0"><span>m</span></label>
+          <label><input class="input" type="number" inputmode="numeric" min="0" max="59" name="turn_s" value="5"><span>s</span></label>
+        </div>
+      </fieldset>
+      <fieldset class="duration">
+        <legend class="label">Time per game</legend>
+        <div class="hms">
+          <label><input class="input" type="number" inputmode="numeric" min="0" max="99" name="game_h" value="0"><span>h</span></label>
+          <label><input class="input" type="number" inputmode="numeric" min="0" max="59" name="game_m" value="15"><span>m</span></label>
+          <label><input class="input" type="number" inputmode="numeric" min="0" max="59" name="game_s" value="0"><span>s</span></label>
+        </div>
+      </fieldset>
+    </div>
+    <p class="help count-up-help">Counting up, each player’s clock shows how long they’ve taken, with no limit.</p>
+    <div class="form-foot">
+      <button class="btn btn-primary btn-xl">Start with 2 players</button>
+    </div>
+  </form>
+</main>
+
+<!-- Join error -->
+<main id="joinError" class="view" hidden>
+  <div class="home-inner">
+    <h2 class="h2">Couldn’t join that game</h2>
+    <p class="lede" id="joinErrorText">The code may be wrong, or the game ended after a day without moves.</p>
+    <a class="btn btn-primary btn-xl" href="#">Back</a>
+  </div>
+</main>
+
+<!-- Game -->
+<main id="game" class="view" hidden>
+  <header class="gamebar">
+    <button class="share-chip" id="shareChip" type="button"></button>
+    <span class="status" id="netStatus" role="status"></span>
+    <button class="icon-btn" id="menuBtn" type="button" aria-label="Menu"><svg><use href="#i-menu"/></svg></button>
+  </header>
+  <button class="stage" id="stage" type="button" aria-describedby="stageHint">
+    <span class="layers" id="layers"></span>
+    <span class="stage-hint" id="stageHint"></span>
+  </button>
+  <ol class="roster" id="roster" aria-label="Players"></ol>
+  <nav class="controls" aria-label="Clock controls">
+    <button class="ctl" id="prevBtn" type="button"><svg><use href="#i-prev"/></svg><span>Back</span></button>
+    <button class="ctl" id="playBtn" type="button"><svg class="i-play"><use href="#i-play"/></svg><svg class="i-pause"><use href="#i-pause"/></svg><span id="playLabel">Start</span></button>
+    <button class="ctl ctl-next" id="nextBtn" type="button"><span>Next</span><svg><use href="#i-next"/></svg></button>
+  </nav>
+  <div class="takeover" id="takeover" aria-hidden="true"><span>Your turn</span></div>
+</main>
+
+<!-- Menu sheet -->
+<dialog class="sheet" id="menu" aria-labelledby="menuTitle">
+  <form method="dialog" class="sheet-inner">
+    <header class="sheet-head">
+      <h2 id="menuTitle" class="h3">Game</h2>
+      <button class="icon-btn" value="close" aria-label="Close"><svg><use href="#i-close"/></svg></button>
+    </header>
+    <section class="sheet-section" id="sharePublic">
+      <p class="label">Join code</p>
+      <p class="big-code" id="menuCode"></p>
+      <button class="btn btn-secondary" type="button" id="shareBtn"><svg><use href="#i-share"/></svg>Share link</button>
+    </section>
+    <section class="sheet-section" id="sharePrivate">
+      <p class="help">This game lives on this phone. Make it public to run it on several phones.</p>
+      <button class="btn btn-secondary" type="button" id="publicBtn">Make public</button>
+    </section>
+    <section class="sheet-section">
+      <p class="label">Players</p>
+      <button class="btn btn-quiet" type="button" id="addPlayerBtn"><svg><use href="#i-plus"/></svg>Add player</button>
+      <label class="row-stack" for="seat"><span>This phone plays as</span>
+        <select id="seat" class="input select"></select></label>
+      <p class="help">Pick a player and this phone signals only on their turn.</p>
+    </section>
+    <section class="sheet-section">
+      <p class="label">This phone</p>
+      <label class="row switch"><span>Keep screen on</span><input type="checkbox" id="prefWake" role="switch"></label>
+      <label class="row switch"><span>Sound on my turn</span><input type="checkbox" id="prefSound" role="switch"></label>
+      <label class="row switch" id="prefVibrateRow"><span>Vibrate on my turn</span><input type="checkbox" id="prefVibrate" role="switch"></label>
+    </section>
+    <section class="sheet-section sheet-danger">
+      <button class="btn btn-quiet" type="button" id="resetBtn">Reset clock</button>
+      <button class="btn btn-quiet btn-danger" type="button" id="quitBtn">Leave game</button>
+    </section>
+  </form>
+</dialog>
+
+<!-- Player sheet -->
+<dialog class="sheet" id="playerSheet" aria-labelledby="playerTitle">
+  <form method="dialog" class="sheet-inner" id="playerForm">
+    <header class="sheet-head">
+      <h2 id="playerTitle" class="h3">Player</h2>
+      <button class="icon-btn" value="cancel" formnovalidate aria-label="Close"><svg><use href="#i-close"/></svg></button>
+    </header>
+    <label class="label" for="playerName">Name</label>
+    <input class="input" id="playerName" name="name" maxlength="12" required autocomplete="off">
+    <fieldset class="swatches" id="swatches"><legend class="label">Colour</legend></fieldset>
+    <fieldset class="duration" id="playerTime">
+      <legend class="label" id="playerTimeLabel">Game time left</legend>
+      <div class="hms">
+        <label><input class="input" type="number" inputmode="numeric" min="0" max="99" name="h"><span>h</span></label>
+        <label><input class="input" type="number" inputmode="numeric" min="0" max="59" name="m"><span>m</span></label>
+        <label><input class="input" type="number" inputmode="numeric" min="0" max="59" name="s"><span>s</span></label>
       </div>
-      <script type="text/javascript" src="js/main-built.js?v=%BUILD_ID%"></script>
-   </body>
+    </fieldset>
+    <div class="row-btns">
+      <button class="btn btn-quiet" type="button" id="moveUp"><svg><use href="#i-up"/></svg>Earlier</button>
+      <button class="btn btn-quiet" type="button" id="moveDown"><svg><use href="#i-down"/></svg>Later</button>
+    </div>
+    <div class="row-btns">
+      <button class="btn btn-quiet btn-danger" type="button" id="removePlayer">Remove</button>
+      <button class="btn btn-primary" value="save">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Confirm -->
+<dialog class="sheet sheet-confirm" id="confirm" aria-labelledby="confirmText">
+  <form method="dialog" class="sheet-inner">
+    <p class="confirm-text" id="confirmText"></p>
+    <div class="row-btns">
+      <button class="btn btn-quiet" value="no">Cancel</button>
+      <button class="btn btn-primary" value="yes" id="confirmYes">OK</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
 </html>

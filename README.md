@@ -9,8 +9,10 @@ See the live version at http://gmclk.com or http://gentlemans-clock.com.
 
 - `server/`: the realtime server (`main.js`: socket.io on `/ws`, `GET /health`; `store.js`: games in memory with a
   JSON snapshot in `DATA_DIR`, idle games expire after a day; `validate.js`: every socket message is checked).
-- `client/index.html` + `static/`: the 2013 Backbone client. `npm run build` writes the static page to `dist/`
-  (`REALTIME_ORIGIN` is the socket server; empty means the page's own origin).
+- `client/`: the page. Plain HTML (`index.html`), CSS (`style.css`) and ES modules (`src/`: `model.js` is the game
+  logic, `net.js` the socket, `device.js` wake lock/sound/vibration, `app.js` the views). No framework; `npm run
+  build` bundles it with esbuild into `dist/` (`REALTIME_ORIGIN` is the socket server; empty means the page's own
+  origin). Barlow Condensed (SIL OFL 1.1) is self-hosted in `client/fonts/`. See docs/CLIENT.md.
 - `deploy/`: kitten's deploy driver config. The page goes to sterlinghirsh.com/gentlemans-clock/ (cPanel), the server
   to gentlemans-clock.rt.sterlinghirsh.com (realtime-1, port 7101).
 
